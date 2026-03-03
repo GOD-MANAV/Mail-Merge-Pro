@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Google Sans', 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #202124;
+        }
+
+        /* Main Navigation Tabs */
+        .main-tabs {
+            display: flex;
+            background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+            padding: 0;
+        }
+
+        .main-tab {
+            flex: 1;
+            padding: 14px 8px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .main-tab:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .main-tab.active {
+            color: white;
+            border-bottom-color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .main-tab-icon {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Content Panels */
+        .panel {
+            display: none;
+            padding: 16px;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* Shared Styles */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #202124;
+        }
+
+        .refresh-btn {
+            background: #f1f3f4;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .refresh-btn:hover {
+            background: #e8eaed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #5f6368;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e0e0e0;
+            border-top-color: #1a73e8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #5f6368;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .item-card {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .item-card:hover {
+            background: #f8f9fa;
+        }
+
+        .item-card.running {
+            border-color: #34a853;
+            background: #e6f4ea;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background: #e6f4ea;
+            color: #137333;
+        }
+
+        .badge-running {
+            background: #e8f0fe;
+            color: #1967d2;
+        }
+
+        .badge-scheduled {
+            background: #f1f3f4;
+            color: #3c4043;
+        }
+
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-title {
+            font-weight: 500;
+        }
+
+        .item-meta {
+            font-size: 12px;
+            color: #5f6368;
+            margin-top: 4px;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #f8f9fa;
+        }
+
+        .btn-danger {
+            color: #ea4335;
+            border-color: #ea4335;
+        }
+
+        .btn-danger:hover {
+            background: #fce8e6;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+
+        .btn-primary:hover {
+            background: #1557b0;
+        }
+
+        .btn-stop {
+            background: #ea4335;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-running {
+            background: #34a853;
+            color: white;
+        }
+
+        .badge-completed {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .badge-cancelled {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #1a73e8;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .stats strong {
+            color: #202124;
+        }
+
+        .sub-tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 16px;
+        }
+
+        .sub-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 13px;
+        }
+
+        .sub-tab.active {
+            color: #1a73e8;
+            border-bottom-color: #1a73e8;
+        }
+
+        .list-container {
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .footer {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+            text-align: right;
+        }
+
+        .actions-row {
+            display: flex;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Main Navigation -->
+    <div class="main-tabs">
+        <button class="main-tab active" data-panel="templates" onclick="showPanel('templates')">
+            <span class="main-tab-icon">📄</span>Templates
+        </button>
+        <button class="main-tab" data-panel="scheduled" onclick="showPanel('scheduled')">
+            <span class="main-tab-icon">📅</span>Scheduled
+        </button>
+        <button class="main-tab" data-panel="activity" onclick="showPanel('activity')">
+            <span class="main-tab-icon">⚡</span>Activity
+        </button>
+        <button class="main-tab" data-panel="campaigns" onclick="showPanel('campaigns')">
+            <span class="main-tab-icon">🚀</span>Campaigns
+        </button>
+    </div>
+
+    <!-- Templates Panel -->
+    <div class="panel active" id="panel-templates">
+        <div class="section-header">
+            <span class="section-title">Saved Templates</span>
+            <button class="refresh-btn" onclick="loadTemplates()">🔄 Refresh</button>
+        </div>
+        <div class="list-container" id="templateList">
+            <div class="loading"><span class="spinner"></span> Loading...</div>
+        </div>
+        <div class="footer">
+            <button class="btn btn-primary" onclick="installDefaults()">Install Default Templates</button>
+        </div>
+    </div>
+
+    <!-- Scheduled Emails Panel -->
+    <div class="panel" id="panel-scheduled">
+        <div class="section-header">
+            <span class="section-title">Scheduled Emails</span>
+            <button class="refresh-btn" onclick="loadScheduled()">🔄 Refresh</button>
+        </div>
+        <div class="list-container" id="scheduledList">
+            <div class="loading"><span class="spinner"></span> Loading...</div>
+        </div>
+        <div class="footer" id="scheduledFooter" style="display:none;">
+            <button class="btn btn-danger" onclick="cancelAllScheduled()">Cancel All</button>
+        </div>
+    </div>
+
+    <!-- Activity Monitor Panel -->
+    <div class="panel" id="panel-activity">
+        <div class="section-header">
+            <span class="section-title">Activity Monitor</span>
+            <div style="display:flex; gap:10px;">
+                <button class="refresh-btn" style="background:#d93025; color:white; display:none;" id="cancelSendingBtn"
+                    onclick="requestCancelSending()">ABORT SENDING</button>
+                <button class="refresh-btn" onclick="loadActivity()">🔄 Refresh</button>
+            </div>
+        </div>
+        <div class="sub-tabs">
+            <button class="sub-tab active" data-tab="running" onclick="switchActivityTab('running')">🔄 Running</button>
+            <button class="sub-tab" data-tab="history" onclick="switchActivityTab('history')">📜 History</button>
+        </div>
+        <div class="list-container" id="activityList">
+            <div class="loading"><span class="spinner"></span> Loading...</div>
+        </div>
+    </div>
+
+    <!-- Campaigns Panel -->
+    <div class="panel" id="panel-campaigns">
+        <div class="section-header">
+            <span class="section-title">Scheduled Campaigns</span>
+            <button class="refresh-btn" onclick="loadCampaigns()">🔄 Refresh</button>
+        </div>
+        <div class="list-container" id="campaignsList">
+            <div class="loading"><span class="spinner"></span> Loading...</div>
+        </div>
+
+        <!-- Reschedule Modal -->
+        <div id="rescheduleModal"
+            style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:100; justify-content:center; align-items:center;">
+            <div
+                style="background:white; padding:20px; border-radius:8px; width:300px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                <h3 style="margin-top:0; color:#202124;">Reschedule Campaign</h3>
+                <input type="hidden" id="rescheduleId">
+                <div style="margin:15px 0;">
+                    <label style="display:block; margin-bottom:5px; font-weight:500;">New Start Date</label>
+                    <input type="date" id="rescheduleDate" class="text-input" style="width:100%;">
+                </div>
+                <div style="margin:15px 0;">
+                    <label style="display:block; margin-bottom:5px; font-weight:500;">New Start Time</label>
+                    <input type="time" id="rescheduleTime" class="text-input" style="width:100%;">
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                    <button class="btn" style="background:#f1f3f4; color:#3c4043;"
+                        onclick="closeRescheduleModal()">Cancel</button>
+                    <button class="btn btn-primary" id="confirmRescheduleBtn"
+                        onclick="confirmReschedule()">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var currentPanel = 'templates';
+            var activityTab = 'running';
+            var activityData = null;
+            var refreshInterval = null;
+
+            // ==================== Panel Switching ====================
+            function showPanel(panel) {
+                currentPanel = panel;
+                document.querySelectorAll('.main-tab').forEach(function (t) {
+                    t.classList.toggle('active', t.dataset.panel === panel);
+                });
+                document.querySelectorAll('.panel').forEach(function (p) {
+                    p.classList.toggle('active', p.id === 'panel-' + panel);
+                });
+
+                // Load data for the panel
+                if (panel === 'templates') loadTemplates();
+                else if (panel === 'scheduled') loadScheduled();
+                else if (panel === 'campaigns') loadCampaigns();
+                else if (panel === 'activity') { loadActivity(); startAutoRefresh(); }
+
+                // Stop auto-refresh when leaving activity
+                if (panel !== 'activity') stopAutoRefresh();
+            }
+
+            // ==================== Templates ====================
+            function loadTemplates() {
+                document.getElementById('templateList').innerHTML = '<div class="loading"><span class="spinner"></span> Loading...</div>';
+                google.script.run.withSuccessHandler(renderTemplates).withFailureHandler(showError).getTemplates();
+            }
+
+            function renderTemplates(templates) {
+                var container = document.getElementById('templateList');
+                if (!templates || templates.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No templates saved</p><p style="font-size:12px;margin-top:8px;">Click "Install Default Templates" to get started.</p></div>';
+                    return;
+                }
+                var html = '';
+                templates.forEach(function (t) {
+                    html += '<div class="item-card"><div class="item-header"><div class="item-title">' + escapeHtml(t.name) + '</div>';
+                    html += '<div class="actions-row"><button class="btn" onclick="renameTemplate(\'' + t.id + '\',\'' + escapeHtml(t.name) + '\')">Rename</button>';
+                    html += '<button class="btn btn-danger" onclick="deleteTemplate(\'' + t.id + '\')">Delete</button></div></div>';
+                    html += '<div class="item-meta">' + escapeHtml(t.subject || 'No subject') + '</div></div>';
+                });
+                container.innerHTML = html;
+            }
+
+            function renameTemplate(id, name) {
+                var newName = prompt('Enter new name:', name);
+                if (newName && newName !== name) {
+                    google.script.run.withSuccessHandler(loadTemplates).renameTemplate(id, newName);
+                }
+            }
+
+            function deleteTemplate(id) {
+                if (confirm('Delete this template?')) {
+                    google.script.run.withSuccessHandler(loadTemplates).deleteTemplate(id);
+                }
+            }
+
+            function installDefaults() {
+                google.script.run.withSuccessHandler(function () {
+                    alert('Default templates installed!');
+                    loadTemplates();
+                }).installDefaultTemplates();
+            }
+
+            // ==================== Scheduled Emails ====================
+            function loadScheduled() {
+                document.getElementById('scheduledList').innerHTML = '<div class="loading"><span class="spinner"></span> Loading...</div>';
+                google.script.run.withSuccessHandler(renderScheduled).withFailureHandler(showError).getScheduledEmails();
+            }
+
+            function renderScheduled(result) {
+                var container = document.getElementById('scheduledList');
+                var footer = document.getElementById('scheduledFooter');
+
+                if (!result.success) { container.innerHTML = '<p>Error: ' + result.error + '</p>'; return; }
+
+                if (!result.emails || result.emails.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>No scheduled emails</p></div>';
+                    footer.style.display = 'none';
+                    return;
+                }
+
+                var html = '';
+                result.emails.forEach(function (e) {
+                    var isScheduled = e.status === 'scheduled';
+                    var statusClass = isScheduled ? 'badge-scheduled' : (e.status === 'running' ? 'badge-running' : 'badge-success');
+                    var statusText = isScheduled ? 'SCHEDULED UPCOMING' : e.status.toUpperCase();
+
+                    html += '<div class="item-card ' + (e.status === 'running' ? 'running' : '') + '">';
+                    html += '<div class="item-header">';
+                    html += '<div><span class="badge ' + statusClass + '">' + statusText + '</span> <span class="item-title">' + escapeHtml(e.subject) + '</span></div>';
+
+                    if (isScheduled) {
+                        html += '<div>';
+                        html += '<button class="btn" onclick="openReschedule(\'' + e.id + '\', \'' + e.scheduledTime + '\')" style="margin-right:5px">✏️ Edit</button>';
+                        html += '<button class="btn btn-danger" onclick="cancelScheduled(\'' + e.id + '\')">Cancel</button>';
+                        html += '</div>';
+                    }
+                    html += '</div>'; // close header
+
+                    html += '<div class="item-meta" style="margin-top:8px; display:flex; gap:15px;">';
+                    html += '<span>📧 ' + e.recipientCount + ' recipients</span>';
+                    html += '<span>⏰ ' + (e.scheduledTimeFormatted || e.scheduledTime) + '</span>';
+                    html += '</div>';
+                    html += '</div>'; // close card
+                });
+                container.innerHTML = html;
+                footer.style.display = result.emails.length > 1 ? 'block' : 'none';
+            }
+
+            function cancelScheduled(id) {
+                if (confirm('Cancel this scheduled email?')) {
+                    google.script.run.withSuccessHandler(function (r) {
+                        if (r.success) loadScheduled(); else alert('Error: ' + r.error);
+                    }).cancelScheduledCampaign(id);
+                }
+            }
+
+            function cancelAllScheduled() {
+                if (confirm('Cancel ALL scheduled emails?')) {
+                    google.script.run.withSuccessHandler(function (r) {
+                        if (r.success) loadScheduled(); else alert('Error: ' + r.error);
+                    }).cancelAllScheduledEmails();
+                }
+            }
+
+            // ==================== Activity Monitor ====================
+            function loadActivity() {
+                google.script.run.withSuccessHandler(function (result) {
+                    activityData = result;
+                    renderActivity();
+                }).withFailureHandler(showError).getScriptExecutionStatus();
+            }
+
+            function renderActivity() {
+                var container = document.getElementById('activityList');
+                if (!activityData || !activityData.success) {
+                    container.innerHTML = '<p>Error loading activity</p>';
+                    return;
+                }
+
+                var items = activityTab === 'running' ? activityData.running : activityData.history;
+
+                if (!items || items.length === 0) {
+                    var msg = activityTab === 'running'
+                        ? '<div class="empty-state"><div class="empty-icon">✨</div><p>No scripts running</p></div>'
+                        : '<div class="empty-state"><div class="empty-icon">📭</div><p>No history</p></div>';
+                    container.innerHTML = msg;
+                    return;
+                }
+
+                var html = '';
+                items.forEach(function (item) {
+                    var statusClass = item.status.toLowerCase();
+                    var pct = item.total > 0 ? Math.round((item.sent / item.total) * 100) : 0;
+
+                    html += '<div class="item-card ' + statusClass + '">';
+                    html += '<div class="item-header"><div><span class="badge badge-' + statusClass + '">' + item.status + '</span> ' + escapeHtml(item.subject) + '</div>';
+                    html += '<span style="font-size:11px;color:#5f6368;">' + item.startTime + '</span></div>';
+
+                    if (item.status === 'Running') {
+                        html += '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>';
+                    }
+
+                    html += '<div class="stats">';
+                    html += '<span>📧 <strong>' + item.sent + '</strong>/' + item.total + '</span>';
+                    if (item.failed > 0) html += '<span>❌ ' + item.failed + '</span>';
+                    if (item.elapsed) html += '<span>⏱️ ' + item.elapsed + '</span>';
+                    if (item.timeRemaining) html += '<span>⏳ ~' + item.timeRemaining + '</span>';
+                    html += '</div>';
+
+                    if (item.status === 'Running') {
+                        html += '<button class="btn-stop" onclick="stopScript()">⛔ Stop Sending</button>';
+                    }
+                    html += '</div>';
+                });
+                container.innerHTML = html;
+            }
+
+            function switchActivityTab(tab) {
+                activityTab = tab;
+                document.querySelectorAll('.sub-tab').forEach(function (t) {
+                    t.classList.toggle('active', t.dataset.tab === tab);
+                });
+                renderActivity();
+            }
+
+            function stopScript() {
+                if (confirm('Stop sending? Already sent emails cannot be recalled.')) {
+                    google.script.run.withSuccessHandler(function (r) {
+                        if (r.success) loadActivity(); else alert('Error: ' + r.error);
+                    }).requestCancelSending();
+                }
+            }
+
+            function startAutoRefresh() {
+                stopAutoRefresh();
+                refreshInterval = setInterval(loadActivity, 3000);
+            }
+
+            function stopAutoRefresh() {
+                if (refreshInterval) { clearInterval(refreshInterval); refreshInterval = null; }
+            }
+
+            // ==================== CAMPAIGN MANAGEMENT ====================
+            function loadCampaigns() {
+                var container = document.getElementById('campaignsList');
+                container.innerHTML = '<div class="loading"><span class="spinner"></span> Loading campaigns...</div>';
+
+                google.script.run.withSuccessHandler(function (result) {
+                    if (!result.success) {
+                        container.innerHTML = '<div class="empty-state">Error: ' + result.error + '</div>';
+                        return;
+                    }
+
+                    if (result.campaigns.length === 0) {
+                        container.innerHTML = '<div class="empty-state">No scheduled campaigns found.</div>';
+                        return;
+                    }
+
+                    var html = '';
+                    result.campaigns.forEach(function (c) {
+                        html += '<div class="item-card ' + c.status.toLowerCase() + '">';
+                        html += '<div class="item-header"><div><span class="badge badge-' + getStatusClass(c.status) + '">' + c.status + '</span> ' + escapeHtml(c.subject) + '</div>';
+                        html += '<span style="font-size:11px;color:#5f6368;">Scheduled: ' + c.scheduledTimeFormatted + '</span></div>';
+
+                        html += '<div class="stats">';
+                        html += '<span>👥 ' + c.recipientCount + ' recipients</span>';
+                        html += '<span>⏳ ' + (c.timeRemaining > 0 ? formatTimeRemaining(c.timeRemaining) : 'Starting...') + '</span>';
+                        html += '</div>';
+
+                        if (c.status === 'scheduled') {
+                            html += '<div style="margin-top:10px; display:flex; gap:10px;">';
+                            html += '<button class="btn btn-primary" style="font-size:12px; padding:4px 8px;" onclick="openRescheduleModal(\'' + c.id + '\')">Update Schedule</button>';
+                            html += '<button class="btn btn-danger" style="font-size:12px; padding:4px 8px;" onclick="cancelCampaign(\'' + c.id + '\')">Cancel Campaign</button>';
+                            html += '</div>';
+                        }
+                        html += '</div>';
+                    });
+                    container.innerHTML = html;
+                }).getScheduledCampaigns();
+            }
+
+            function cancelCampaign(id) {
+                if (confirm('Are you sure you want to cancel this campaign?')) {
+                    google.script.run.withSuccessHandler(function (r) {
+                        if (r.success) loadCampaigns(); else alert('Error: ' + r.error);
+                    }).cancelScheduledCampaign(id);
+                }
+            }
+
+            function openRescheduleModal(id) {
+                document.getElementById('rescheduleId').value = id;
+                document.getElementById('rescheduleModal').style.display = 'flex';
+            }
+
+            function closeRescheduleModal() {
+                document.getElementById('rescheduleModal').style.display = 'none';
+            }
+
+            function confirmReschedule() {
+                var id = document.getElementById('rescheduleId').value;
+                var date = document.getElementById('rescheduleDate').value;
+                var time = document.getElementById('rescheduleTime').value;
+
+                if (!date || !time) { alert('Select date and time'); return; }
+
+                var newTime = new Date(date + 'T' + time);
+                if (newTime <= new Date()) { alert('Time must be in future'); return; }
+
+                document.getElementById('confirmRescheduleBtn').disabled = true;
+                document.getElementById('confirmRescheduleBtn').textContent = 'Updating...';
+
+                google.script.run.withSuccessHandler(function (r) {
+                    document.getElementById('confirmRescheduleBtn').disabled = false;
+                    document.getElementById('confirmRescheduleBtn').textContent = 'Confirm';
+                    if (r.success) {
+                        closeRescheduleModal();
+                        loadCampaigns();
+                    } else {
+                        alert('Error: ' + r.error);
+                    }
+                }).rescheduleCampaign(id, newTime.toISOString());
+            }
+
+            function getStatusClass(status) {
+                if (status === 'scheduled') return 'running'; // Use blue
+                if (status === 'completed') return 'success';
+                return 'default';
+            }
+
+            function formatTimeRemaining(ms) {
+                var days = Math.floor(ms / (1000 * 60 * 60 * 24));
+                if (days > 0) return days + ' days left';
+                var hours = Math.floor(ms / (1000 * 60 * 60));
+                if (hours > 0) return hours + ' hours left';
+                var mins = Math.floor(ms / (1000 * 60));
+                return mins + ' mins left';
+            }
+
+            // ==================== Utilities ====================
+            function showError(e) { alert('Error: ' + e.message); }
+
+            function escapeHtml(text) {
+                var div = document.createElement('div');
+                div.textContent = text || '';
+                return div.innerHTML;
+            }
+
+            // Initial load - use tab passed from server or default to templates
+            var initialTab = '<?= initialTab ?>' || 'templates';
+            showPanel(initialTab);
+        </script>
+</body>
+
+</html>

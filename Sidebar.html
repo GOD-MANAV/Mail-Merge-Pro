@@ -1,0 +1,2825 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --primary-light: #e8f0fe;
+            --secondary: #5f6368;
+            --success: #34a853;
+            --warning: #fbbc04;
+            --error: #ea4335;
+            --background: #ffffff;
+            --surface: #f8f9fa;
+            --border: #dadce0;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            --radius: 8px;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Google Sans', 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text);
+            background: var(--background);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, #4285f4 100%);
+            color: white;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            /* Allow shrinking if needed */
+        }
+
+        .logo-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100px;
+        }
+
+        /* Hide logo text on narrow sidebars to make room for menu */
+        @media (max-width: 350px) {
+            .logo-text {
+                display: none;
+            }
+        }
+
+        .step-indicator {
+            font-size: 10px;
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 6px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        .btn-icon {
+            position: relative;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--error);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .badge-notification {
+            background: var(--warning);
+            color: #000;
+        }
+
+        /* Header Dropdown Menu */
+        .header-menu-container {
+            position: relative;
+        }
+
+        .btn-menu {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .header-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--background);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text);
+            text-align: left;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-light);
+        }
+
+        .dropdown-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-badge {
+            margin-left: auto;
+            background: var(--success);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 0;
+        }
+
+        .scheduled-email-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+        }
+
+        .scheduled-email-info {
+            flex: 1;
+        }
+
+        .scheduled-email-subject {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .scheduled-email-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .scheduled-email-countdown {
+            font-size: 11px;
+            color: var(--primary);
+            margin-top: 4px;
+        }
+
+        .btn-danger {
+            background: var(--error) !important;
+            color: white !important;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+
+        .btn-cancel-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: transparent;
+            border: 1px solid var(--error);
+            color: var(--error);
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        .btn-cancel-small:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        .no-scheduled {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-scheduled-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .modal-footer {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            text-align: right;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--border);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--success) 100%);
+            width: 20%;
+            transition: width 0.3s ease;
+        }
+
+        .step {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .step h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .required {
+            color: var(--error);
+        }
+
+        .optional {
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        .row-range-inputs {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .range-input-group {
+            flex: 1;
+        }
+
+        .range-input-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .text-input.small {
+            width: 100%;
+            padding: 8px 10px;
+        }
+
+        .range-separator {
+            color: var(--text-secondary);
+            padding-bottom: 10px;
+        }
+
+        .delay-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .radio-label input[type="radio"] {
+            margin: 0;
+        }
+
+        .text-input.tiny {
+            width: 60px;
+            padding: 6px 8px;
+            text-align: center;
+        }
+
+        .estimated-time-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--info-bg, #e8f4fc);
+            border: 1px solid var(--info-border, #b8daff);
+            border-radius: var(--radius);
+            padding: 12px;
+            margin-top: 12px;
+            color: var(--info-text, #004085);
+        }
+
+        .estimated-time-box .icon {
+            font-size: 20px;
+        }
+
+        .select-input,
+        .text-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            background: var(--background);
+            transition: var(--transition);
+        }
+
+        .select-input:focus,
+        .text-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .help-text {
+            display: block;
+            margin-top: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .info-box {
+            padding: 12px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .row-count-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: var(--primary-light);
+            border-radius: var(--radius);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .variables-preview {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px dashed var(--border);
+        }
+
+        .variables-preview label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .variable-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .variable-chip {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            font-size: 12px;
+            font-family: monospace;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .variable-chip:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .from-info {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: var(--surface);
+            border-radius: var(--radius);
+        }
+
+        .from-info label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .from-address {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .subject-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .subject-container .text-input {
+            flex: 1;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--surface);
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .template-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .btn-link {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 0;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+
+        .toolbar-select {
+            padding: 4px 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 12px;
+            background: var(--background);
+        }
+
+        .toolbar-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background: var(--background);
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .toolbar-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 28px;
+            background: var(--border);
+            margin: 0 4px;
+        }
+
+        .color-picker {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .rich-editor {
+            min-height: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 0 0 var(--radius) var(--radius);
+            background: var(--background);
+            outline: none;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .rich-editor:focus {
+            border-color: var(--primary);
+        }
+
+        .rich-editor p {
+            margin: 0 0 10px 0;
+        }
+
+        .quick-attach-section {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #fff7e6 0%, #fff3cd 100%);
+            border-radius: var(--radius);
+            border: 1px solid #ffe69c;
+        }
+
+        .quick-attach-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .quick-resume-active {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--background);
+            border-radius: 6px;
+            gap: 8px;
+        }
+
+        .quick-resume-active span {
+            flex: 1;
+            min-width: 0;
+            word-break: break-word;
+            font-size: 13px;
+            line-height: 1.3;
+        }
+
+        .footer {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--background);
+        }
+
+        .footer button {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .attachment-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--background);
+            color: var(--text);
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface);
+            border-color: var(--primary);
+        }
+
+        .attachments-list {
+            min-height: 80px;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+        }
+
+        .no-attachments {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 20px;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--surface);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .attachment-name {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .attachment-remove {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .attachment-remove:hover {
+            background: #fce8e6;
+        }
+
+        .attachment-info {
+            margin-top: 12px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .review-summary {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-item .label {
+            color: var(--text-secondary);
+        }
+
+        .summary-item .value {
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .quota-warning {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #fff3cd;
+            border-radius: var(--radius);
+            color: #856404;
+            margin-bottom: 20px;
+        }
+
+        .preview-section {
+            margin-bottom: 20px;
+        }
+
+        .preview-section h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .preview-box {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .preview-header {
+            padding: 8px 12px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .preview-body {
+            padding: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+
+        .schedule-section {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: var(--surface);
+            border-radius: var(--radius);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .schedule-inputs {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .schedule-inputs .text-input {
+            flex: 1;
+        }
+
+        .btn-send {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            background: var(--background);
+        }
+
+        .sending-animation {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .sending-icon {
+            font-size: 48px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 30px auto;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .progress-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .sending-status {
+            color: var(--text-secondary);
+            margin-top: 16px;
+        }
+
+        .btn-stop-sending {
+            margin-top: 24px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-stop-sending:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .btn-stop-sending:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stop-info {
+            margin-top: 12px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .complete-animation {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .complete-icon {
+            font-size: 64px;
+            animation: bounceIn 0.5s;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .complete-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .stat-failed {
+            color: var(--error);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--background);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .modal-large {
+            max-width: 500px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .variable-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .drive-files {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .drive-file {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg);
+        }
+
+        .drive-file:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .drive-file-icon {
+            font-size: 32px;
+            margin-right: 14px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .drive-file-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .drive-file-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text);
+            word-break: break-word;
+            line-height: 1.3;
+            margin-bottom: 4px;
+        }
+
+        .drive-file-type {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .drive-file-type-badge {
+            background: var(--surface);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .drive-file-type-badge.pdf {
+            background: #fce4e4;
+            color: #d32f2f;
+        }
+
+        .drive-file-type-badge.doc {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .drive-file-type-badge.sheet {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .drive-file-type-badge.image {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .drive-file-type-badge.folder {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .drive-file-type-badge.other {
+            background: #f5f5f5;
+            color: #616161;
+        }
+
+        .drive-files {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .drive-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            margin-bottom: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .drive-back-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+
+        .drive-back-btn:hover {
+            background: var(--primary-dark, #0d47a1);
+        }
+
+        .drive-current-folder {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .drive-folder-item {
+            background: var(--surface);
+        }
+
+        .drive-folder-item:hover {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .drive-folder-arrow {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        .template-item {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .template-item:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .template-item h4 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+        }
+
+        .template-item p {
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+        }
+
+        .sending-animation {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .sending-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #34d399);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 12px 20px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            min-width: 80px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-box:nth-child(3) .stat-value {
+            color: var(--error);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .time-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin: 16px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .time-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sending-status {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+        }
+
+        .current-email {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span class="logo-icon">📧</span><span class="logo-text">Mail Merge Pro</span></div>
+            <div class="header-actions">
+                <span class="step-indicator" id="stepText">Step 1 of 5</span>
+                <div class="header-menu-container">
+                    <button type="button" class="btn-icon btn-menu" id="headerMenuBtn" title="Menu"
+                        style="width:32px;height:32px;font-size:20px;">
+                        <span>⋮</span>
+                        <span class="badge badge-notification" id="menuBadge" style="display: none;">!</span>
+                    </button>
+                    <div class="header-dropdown" id="headerDropdown" style="display: none;">
+                        <button type="button" class="dropdown-item" id="menuScriptMonitor">
+                            <span class="dropdown-icon">⚡</span>
+                            <span>Activity Monitor</span>
+                            <span class="dropdown-badge" id="runningBadge" style="display: none;">●</span>
+                        </button>
+                        <button type="button" class="dropdown-item" id="menuScheduledEmails">
+                            <span class="dropdown-icon">📅</span>
+                            <span>Scheduled Emails</span>
+                            <span class="dropdown-badge" id="scheduledBadge" style="display: none;">0</span>
+                        </button>
+                        <button type="button" class="dropdown-item" id="menuCampaigns">
+                            <span class="dropdown-icon">🚀</span>
+                            <span>Scheduled Campaigns</span>
+                            <span class="dropdown-badge" id="campaignBadge" style="display: none;">0</span>
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button type="button" class="dropdown-item" id="menuSettings">
+                            <span class="dropdown-icon">⚙️</span>
+                            <span>Settings</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Step 1: Sheet Selection -->
+        <div class="step" id="step1">
+            <h2>Select Worksheet</h2>
+            <p class="step-description">Choose the sheet containing your recipient data.</p>
+            <div class="form-group">
+                <label>Current Spreadsheet</label>
+                <div class="info-box" id="spreadsheetInfo"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div class="form-group">
+                <label for="sheetSelect">Select Sheet/Tab</label>
+                <select id="sheetSelect" class="select-input">
+                    <option value="">Loading sheets...</option>
+                </select>
+            </div>
+            <div class="row-count-info" id="rowCountInfo" style="display: none;">
+                <span class="icon">📊</span><span id="rowCountText">0 rows of data</span>
+            </div>
+            <div class="form-group row-range-group" id="rowRangeGroup" style="display: none;">
+                <label>Row Range <span class="optional">(optional)</span></label>
+                <div class="row-range-inputs">
+                    <div class="range-input-group">
+                        <label for="startRow">From Row</label>
+                        <input type="number" id="startRow" class="text-input small" min="2" placeholder="2">
+                    </div>
+                    <span class="range-separator">to</span>
+                    <div class="range-input-group">
+                        <label for="endRow">To Row</label>
+                        <input type="number" id="endRow" class="text-input small" placeholder="Last">
+                    </div>
+                </div>
+                <small class="help-text">Leave empty to send to all rows. Row 1 is always the header.</small>
+            </div>
+            <div class="form-group delay-group" id="delayGroup" style="display: none;">
+                <label>Delay Between Emails <span class="optional">(recommended)</span></label>
+                <div class="delay-options">
+                    <label class="radio-label">
+                        <input type="radio" name="delayOption" value="random" id="delayRandom" checked>
+                        <span>Random delay:</span>
+                        <input type="number" id="delayMinSeconds" class="text-input tiny" min="0" max="30" value="2"
+                            style="width:50px;">
+                        <span>to</span>
+                        <input type="number" id="delayMaxSeconds" class="text-input tiny" min="0" max="30" value="6"
+                            style="width:50px;">
+                        <span>seconds</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="delayOption" value="fixed" id="delayFixed">
+                        <span>Fixed delay:</span>
+                        <input type="number" id="fixedDelaySeconds" class="text-input tiny" min="0" max="30" value="3"
+                            disabled style="width:50px;">
+                        <span>seconds</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="delayOption" value="none" id="delayNone">
+                        <span>No delay (fastest, but may trigger spam filters)</span>
+                    </label>
+                </div>
+                <small class="help-text">Random delays help avoid spam detection. Leave max empty to use fixed
+                    delay.</small>
+            </div>
+            <div class="estimated-time-box" id="estimatedTimeBox" style="display: none;">
+                <span class="icon">⏱️</span>
+                <span id="estimatedTimeText">Estimated time: calculating...</span>
+            </div>
+        </div>
+
+        <!-- Step 2: Column Mapping -->
+        <div class="step" id="step2" style="display: none;">
+            <h2>Map Columns</h2>
+            <p class="step-description">Select which columns contain your recipient information.</p>
+            <div class="form-group">
+                <label for="emailColumn">Email Column <span class="required">*</span></label>
+                <select id="emailColumn" class="select-input">
+                    <option value="">Select email column</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="nameColumn">Name Column <span class="optional">(optional)</span></label>
+                <select id="nameColumn" class="select-input">
+                    <option value="">None - Use "Dear Sir/Ma'am"</option>
+                </select>
+                <small class="help-text">For personalized greeting like "Dear John"</small>
+            </div>
+            <div class="form-group">
+                <label for="titleColumn">Title Column <span class="optional">(optional)</span></label>
+                <select id="titleColumn" class="select-input">
+                    <option value="">None</option>
+                </select>
+                <small class="help-text">Contains Mr./Mrs. for "Dear John Sir" or "Dear Sarah Ma'am"</small>
+            </div>
+            <div class="form-group">
+                <label for="ccColumn">CC Column <span class="optional">(optional)</span></label>
+                <select id="ccColumn" class="select-input">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="bccColumn">BCC Column <span class="optional">(optional)</span></label>
+                <select id="bccColumn" class="select-input">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="statusColumn">Status Column <span class="optional">(optional)</span></label>
+                <select id="statusColumn" class="select-input">
+                    <option value="-1">Create new column</option>
+                </select>
+                <small class="help-text">Where to record send status</small>
+            </div>
+            <div class="variables-preview" id="variablesPreview" style="display: none;">
+                <label>Available Variables</label>
+                <div class="variable-chips" id="variableChips"></div>
+            </div>
+        </div>
+
+        <!-- Step 3: Compose Email -->
+        <div class="step" id="step3" style="display: none;">
+            <h2>Compose Email</h2>
+            <div class="form-group">
+                <label for="fromSelect">Send From <span class="required">*</span></label>
+                <select id="fromSelect" class="select-input">
+                    <option value="">Loading aliases...</option>
+                </select>
+                <div id="manualEmailContainer" style="display: none; margin-top: 8px;">
+                    <input type="email" id="fromEmailInput" class="text-input" placeholder="Enter your Gmail address">
+                </div>
+                <small class="help-text">Your verified send-as addresses from Gmail settings</small>
+            </div>
+            <div class="form-group">
+                <label for="subjectInput">Subject <span class="required">*</span></label>
+                <div class="subject-container">
+                    <input type="text" id="subjectInput" class="text-input" placeholder="Enter email subject">
+                    <button type="button" class="btn-icon" id="insertVarSubject"
+                        title="Insert Variable"><span>{{}}</span></button>
+                </div>
+            </div>
+            <div class="template-bar">
+                <button type="button" class="btn-link" id="loadTemplateBtn"><span>📄</span> Load Template</button>
+                <button type="button" class="btn-link" id="saveTemplateBtn"><span>💾</span> Save as Template</button>
+            </div>
+            <div class="form-group">
+                <label>Body</label>
+                <div class="editor-toolbar">
+                    <select id="fontSelect" class="toolbar-select" title="Font">
+                        <option value="Arial">Sans Serif</option>
+                        <option value="Georgia">Serif</option>
+                        <option value="Courier New">Monospace</option>
+                    </select>
+                    <select id="fontSizeSelect" class="toolbar-select" title="Font Size">
+                        <option value="1">Small</option>
+                        <option value="3" selected>Normal</option>
+                        <option value="5">Large</option>
+                    </select>
+                    <div class="toolbar-divider"></div>
+                    <button type="button" class="toolbar-btn" data-command="bold" title="Bold"><b>B</b></button>
+                    <button type="button" class="toolbar-btn" data-command="italic" title="Italic"><i>I</i></button>
+                    <button type="button" class="toolbar-btn" data-command="underline"
+                        title="Underline"><u>U</u></button>
+                    <div class="toolbar-divider"></div>
+                    <input type="color" id="textColor" class="color-picker" value="#000000" title="Text Color">
+                    <input type="color" id="bgColor" class="color-picker" value="#ffffff" title="Background">
+                    <div class="toolbar-divider"></div>
+                    <button type="button" class="toolbar-btn" data-command="insertUnorderedList"
+                        title="Bullet List">•</button>
+                    <button type="button" class="toolbar-btn" data-command="insertOrderedList"
+                        title="Numbered List">1.</button>
+                    <div class="toolbar-divider"></div>
+                    <button type="button" class="toolbar-btn" id="insertLinkBtn" title="Insert Link">🔗</button>
+                    <button type="button" class="toolbar-btn" id="insertVarBody" title="Insert Variable">{{}}</button>
+                </div>
+                <div id="emailBody" class="rich-editor" contenteditable="true">
+                    <p>{{greeting}},</p>
+                    <p><br></p>
+                    <p>I hope this email finds you well.</p>
+                    <p><br></p>
+                    <p>Best regards</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Attachments -->
+        <div class="step" id="step4" style="display: none;">
+            <h2>Attachments</h2>
+            <p class="step-description">Add files to attach to your emails.</p>
+            <div class="quick-attach-section" id="quickAttachSection">
+                <div class="quick-attach-header"><span class="icon">📎</span><span>Quick Attach Resume</span></div>
+                <div id="quickAttachContent"><button type="button" class="btn-secondary" id="setQuickResumeBtn">Set My
+                        Resume</button></div>
+            </div>
+            <div class="attachment-actions">
+                <button type="button" class="btn-secondary" id="attachFromDriveBtn"><span>📁</span> From Google
+                    Drive</button>
+                <button type="button" class="btn-secondary" id="attachFromComputerBtn"><span>💻</span> From
+                    Computer</button>
+                <input type="file" id="fileInput" multiple style="display: none;">
+            </div>
+            <div class="attachments-list" id="attachmentsList">
+                <div class="no-attachments">No files attached yet</div>
+            </div>
+            <div class="attachment-info"><small>📋 Max file size: 25MB total.</small></div>
+        </div>
+
+        <!-- Step 5: Review & Send -->
+        <div class="step" id="step5" style="display: none;">
+            <h2>Review & Send</h2>
+            <div class="review-summary">
+                <div class="summary-item"><span class="label">Recipients:</span><span class="value"
+                        id="summaryRecipients">0</span></div>
+                <div class="summary-item"><span class="label">Subject:</span><span class="value"
+                        id="summarySubject">-</span></div>
+                <div class="summary-item"><span class="label">Attachments:</span><span class="value"
+                        id="summaryAttachments">None</span></div>
+            </div>
+            <div class="quota-warning" id="quotaWarning" style="display: none;"><span class="icon">⚠️</span><span
+                    id="quotaText"></span></div>
+            <div class="preview-section">
+                <h3>Preview First Email</h3>
+                <div class="preview-box">
+                    <div class="preview-header"><strong>To:</strong> <span id="previewTo">-</span></div>
+                    <div class="preview-header"><strong>Subject:</strong> <span id="previewSubject">-</span></div>
+                    <div class="preview-body" id="previewBody"></div>
+                </div>
+            </div>
+            <div class="schedule-section">
+                <label class="checkbox-label"><input type="checkbox" id="scheduleCheckbox"><span>Schedule for
+                        later</span></label>
+                <div class="schedule-inputs" id="scheduleInputs" style="display: none;">
+                    <input type="date" id="scheduleDate" class="text-input">
+                    <input type="time" id="scheduleTime" class="text-input">
+                </div>
+            </div>
+            <div class="test-email-section" style="margin-bottom: 15px;">
+                <button type="button" class="btn-secondary" id="sendTestBtn"
+                    style="width: 100%;"><span>🧪</span><span>Send Test Email to Me</span></button>
+            </div>
+            <div class="action-buttons" style="display: flex; gap: 10px;">
+                <button type="button" class="btn-primary btn-send" id="sendBtn"
+                    style="flex: 1;"><span>✉️</span><span>Send Now</span></button>
+                <button type="button" class="btn-secondary" id="scheduleCampaignBtn"
+                    style="flex: 1; background: linear-gradient(135deg, #34a853, #0d652d); color: white; border: none;"><span>📅</span><span>Schedule
+                        Campaign</span></button>
+            </div>
+            <p class="help-text" style="text-align: center; margin-top: 10px; font-size: 11px; color: #5f6368;">
+                "Schedule Campaign" creates a background job that runs at your chosen time with random delays.
+            </p>
+        </div>
+
+        <!-- Sending Progress -->
+        <div class="step" id="stepSending" style="display: none;">
+            <div class="sending-animation">
+                <div class="sending-icon">✉️</div>
+                <h2 id="sendingTitle">Sending Emails...</h2>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="sendProgressBar" style="width: 0%"></div>
+                </div>
+                <div class="progress-stats">
+                    <div class="stat-box">
+                        <div class="stat-value" id="sentCount">0</div>
+                        <div class="stat-label">Sent</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="remainingCount">0</div>
+                        <div class="stat-label">Remaining</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="failedCount">0</div>
+                        <div class="stat-label">Failed</div>
+                    </div>
+                </div>
+                <div class="time-stats">
+                    <div class="time-stat">⏱️ <span id="elapsedTime">00:00</span> elapsed</div>
+                    <div class="time-stat">⏳ ~<span id="remainingTime">--:--</span> remaining</div>
+                </div>
+                <div class="sending-status" id="sendingStatus">Preparing to send...</div>
+                <div class="current-email" id="currentEmail"></div>
+                <button type="button" class="btn-danger btn-stop-sending" id="stopSendingBtn" onclick="stopSending()">
+                    ⛔ Stop Sending
+                </button>
+                <p class="stop-info">
+                    <small>Note: Emails already sent cannot be recalled. Stopping will prevent remaining emails from
+                        being sent.</small>
+                </p>
+            </div>
+        </div>
+
+        <!-- Scheduled Success -->
+        <div class="step" id="stepScheduledSuccess" style="display: none;">
+            <div class="complete-animation">
+                <div class="complete-icon">📅</div>
+                <h2>Campaign Scheduled!</h2>
+
+                <div class="success-card"
+                    style="background:#f8f9fa; border:1px solid #dadce0; border-radius:8px; padding:20px; text-align:center; margin-bottom:20px;">
+                    <div style="font-size:32px; font-weight:bold; color:#188038; margin-bottom:5px;"
+                        id="scheduledCount">0</div>
+                    <div style="font-size:14px; color:#5f6368; margin-bottom:15px;">Emails Scheduled</div>
+
+                    <div
+                        style="border-top:1px solid #dadce0; padding-top:15px; margin-top:15px; display:flex; flex-direction:column; gap:10px;">
+                        <div style="font-size:13px; color:#3c4043;">
+                            <strong>Estimated Duration:</strong> <span id="scheduledDuration">-</span>
+                        </div>
+                        <div style="font-size:13px; color:#3c4043;">
+                            <strong>Scheduled For:</strong> <br><span id="scheduledTimeDetail"
+                                style="color:#1a73e8; font-weight:500;">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons-stack" style="display:flex; flex-direction:column; gap:10px;">
+                    <button type="button" class="btn-primary" id="startNewCampaignBtn"
+                        style="width:100%; padding:10px;">Start New Campaign</button>
+                    <button type="button" id="cancelScheduledBtn"
+                        style="width:100%; padding:10px; border:1px solid #ea4335; color:#ea4335; background:white; border-radius:4px; cursor:pointer;">Cancel
+                        Campaign</button>
+                </div>
+
+                <p style="margin-top:15px; font-size:12px; color:#5f6368; text-align:center;">
+                    You can close this sidebar now.<br>The campaign will start automatically.
+                </p>
+                <input type="hidden" id="currentScheduledId">
+            </div>
+        </div>
+
+        <!-- Complete -->
+        <div class="step" id="stepComplete" style="display: none;">
+            <div class="complete-animation">
+                <div class="complete-icon">✅</div>
+                <h2>All Done!</h2>
+                <div class="complete-stats">
+                    <div class="stat"><span class="stat-value" id="statSent">0</span><span
+                            class="stat-label">Sent</span></div>
+                    <div class="stat"><span class="stat-value stat-failed" id="statFailed">0</span><span
+                            class="stat-label">Failed</span></div>
+                </div>
+                <button type="button" class="btn-secondary" id="viewErrorsBtn" style="display: none;">View
+                    Errors</button>
+                <button type="button" class="btn-primary" id="startOverBtn">Start New Campaign</button>
+            </div>
+        </div>
+
+        <footer class="footer" id="footer">
+            <button type="button" class="btn-secondary" id="backBtn" style="display: none;">← Back</button>
+            <button type="button" class="btn-primary" id="nextBtn">Next →</button>
+        </footer>
+    </div>
+
+    <!-- Variable Modal -->
+    <div class="modal" id="variableModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Insert Variable</h3><button type="button" class="modal-close" id="closeVariableModal">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Click a variable to insert:</p>
+                <div class="variable-grid" id="variableGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Modal -->
+    <div class="modal" id="templateModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="templateModalTitle">Load Template</h3><button type="button" class="modal-close"
+                    id="closeTemplateModal">×</button>
+            </div>
+            <div class="modal-body" id="templateModalBody"></div>
+        </div>
+    </div>
+
+    <!-- Drive Modal -->
+    <div class="modal" id="drivePickerModal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Select File from Google Drive</h3><button type="button" class="modal-close"
+                    id="closeDriveModal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="drive-files" id="driveFiles">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scheduled Emails Modal -->
+    <div class="modal" id="scheduledModal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>📅 Scheduled Emails</h3>
+                <button type="button" class="modal-close" id="closeScheduledModal">×</button>
+            </div>
+            <div class="modal-body" id="scheduledModalBody">
+                <div class="loading"><span class="spinner"></span> Loading...</div>
+            </div>
+            <div class="modal-footer" id="scheduledModalFooter" style="display:none;">
+                <button type="button" class="btn-secondary btn-danger" id="cancelAllScheduledBtn">Cancel All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Campaign Modal (NEW) -->
+    <div class="modal" id="scheduleCampaignModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📅 Schedule Campaign</h3>
+                <button type="button" class="modal-close" id="closeScheduleCampaignModal">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px; color: #5f6368; font-size: 13px;">
+                    Schedule your campaign to run at a specific time. Emails will be sent
+                    with random delays to appear more natural and avoid spam filters.
+                </p>
+                <div class="form-group">
+                    <label>Campaign Start Date</label>
+                    <input type="date" id="campaignDate" class="text-input" style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label>Campaign Start Time</label>
+                    <input type="time" id="campaignTime" class="text-input" style="width: 100%;">
+                </div>
+                <div class="campaign-summary"
+                    style="background: #e8f5e9; padding: 12px; border-radius: 8px; margin-top: 15px;">
+                    <div style="font-weight: 500; color: #2e7d32; margin-bottom: 8px;">📧 Campaign Details</div>
+                    <div style="font-size: 12px; color: #5f6368;">
+                        <div>Recipients: <strong id="campaignRecipients">0</strong></div>
+                        <div>Delay: <strong id="campaignDelay">Random 2-6s</strong></div>
+                        <div>Est. Duration: <strong id="campaignDuration">~0 min</strong></div>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 11px; color: #5f6368; text-align: center;">
+                    ✅ Works even when your computer is off!
+                </p>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 10px;">
+                <button type="button" class="btn-secondary" onclick="hideScheduleCampaignModal()">Cancel</button>
+                <button type="button" class="btn-primary" id="confirmScheduleCampaignBtn" style="flex: 1;">
+                    <span>🚀</span> Confirm Schedule
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Monitor Modal -->
+    <div class="modal" id="scriptMonitorModal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>⚡ Script Monitor</h3>
+                <button type="button" class="modal-close" id="closeScriptMonitorModal">×</button>
+            </div>
+            <div class="modal-body" id="scriptMonitorBody">
+                <div class="monitor-tabs">
+                    <button type="button" class="monitor-tab active" data-tab="running">🔄 Running</button>
+                    <button type="button" class="monitor-tab" data-tab="history">📜 History</button>
+                </div>
+                <div id="scriptMonitorContent">
+                    <div class="loading"><span class="spinner"></span> Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const state = { currentStep: 1, totalSteps: 5, spreadsheet: null, sheets: [], columns: [], selectedSheet: '', config: { emailColumn: null, nameColumn: null, titleColumn: null, ccColumn: null, bccColumn: null, statusColumn: -1, subject: '', body: '', attachments: [], scheduledTime: null, senderEmail: '', startRow: null, endRow: null, delayOption: 'random', customDelay: 3 }, rowCount: 0, targetForVariable: null };
+
+        // Performance cache to reduce server calls
+        const cache = {
+            sheets: null,
+            columns: {},  // keyed by sheet name
+            driveFiles: {}, // keyed by folder ID
+            templates: null,
+            aliases: null,
+            loading: {}  // Track loading states to prevent duplicate calls
+        };
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        function init() { loadSpreadsheetInfo(); loadSenderAliases(); setupEventListeners(); updateStepUI(); prefetchData(); }
+
+        // Prefetch commonly needed data in background
+        function prefetchData() {
+            // Prefetch templates after initial load
+            setTimeout(function () {
+                if (!cache.templates) {
+                    google.script.run.withSuccessHandler(function (t) { cache.templates = t; }).getTemplates();
+                }
+            }, 2000);
+        }
+
+        function loadSpreadsheetInfo() { google.script.run.withSuccessHandler(function (data) { state.spreadsheet = data; document.getElementById('spreadsheetInfo').innerHTML = '<strong>' + data.name + '</strong>'; loadSheets(); }).withFailureHandler(showError).getCurrentSpreadsheet(); }
+
+        function loadSheets() {
+            // Use cache if available
+            if (cache.sheets) {
+                renderSheets(cache.sheets);
+                return;
+            }
+            // Prevent duplicate calls
+            if (cache.loading.sheets) return;
+            cache.loading.sheets = true;
+
+            google.script.run.withSuccessHandler(function (sheets) {
+                cache.sheets = sheets;
+                cache.loading.sheets = false;
+                state.sheets = sheets;
+                renderSheets(sheets);
+            }).withFailureHandler(function (e) {
+                cache.loading.sheets = false;
+                showError(e);
+            }).getSheets();
+        }
+
+        function renderSheets(sheets) {
+            state.sheets = sheets;
+            var select = document.getElementById('sheetSelect');
+            select.innerHTML = '<option value="">Select a sheet...</option>';
+            sheets.forEach(function (sheet) {
+                select.innerHTML += '<option value="' + sheet.name + '">' + sheet.name + ' (' + sheet.rowCount + ' rows)</option>';
+            });
+        }
+
+        function loadSenderAliases() { google.script.run.withSuccessHandler(function (aliases) { var select = document.getElementById('fromSelect'); var manualContainer = document.getElementById('manualEmailContainer'); select.innerHTML = ''; if (aliases && aliases.length > 0) { aliases.forEach(function (alias) { var option = document.createElement('option'); option.value = alias.email; var displayText = alias.name ? alias.name + ' <' + alias.email + '>' : alias.email; if (alias.isPrimary) displayText += ' (Primary)'; option.textContent = displayText; select.appendChild(option); }); select.innerHTML += '<option value="__manual__">Enter email manually...</option>'; state.config.senderEmail = select.value; manualContainer.style.display = 'none'; } else { select.innerHTML = '<option value="">No aliases found</option><option value="__manual__">Enter email manually...</option>'; select.value = '__manual__'; manualContainer.style.display = 'block'; } select.addEventListener('change', function () { if (this.value === '__manual__') { manualContainer.style.display = 'block'; state.config.senderEmail = document.getElementById('fromEmailInput').value; } else { manualContainer.style.display = 'none'; state.config.senderEmail = this.value; } }); document.getElementById('fromEmailInput').addEventListener('change', function () { if (select.value === '__manual__') { state.config.senderEmail = this.value; } }); }).withFailureHandler(function (e) { var select = document.getElementById('fromSelect'); var manualContainer = document.getElementById('manualEmailContainer'); select.innerHTML = '<option value="__manual__">Enter email manually</option>'; manualContainer.style.display = 'block'; }).getSenderAliases(); }
+
+        function setupEventListeners() { document.getElementById('nextBtn').addEventListener('click', nextStep); document.getElementById('backBtn').addEventListener('click', prevStep); document.getElementById('sheetSelect').addEventListener('change', onSheetChange); document.querySelectorAll('.toolbar-btn[data-command]').forEach(function (btn) { btn.addEventListener('click', function () { document.execCommand(this.dataset.command, false, null); document.getElementById('emailBody').focus(); }); }); document.getElementById('fontSelect').addEventListener('change', function () { document.execCommand('fontName', false, this.value); }); document.getElementById('fontSizeSelect').addEventListener('change', function () { document.execCommand('fontSize', false, this.value); }); document.getElementById('textColor').addEventListener('input', function () { document.execCommand('foreColor', false, this.value); }); document.getElementById('bgColor').addEventListener('input', function () { document.execCommand('hiliteColor', false, this.value); }); document.getElementById('insertVarSubject').addEventListener('click', function () { showVariableModal('subject'); }); document.getElementById('insertVarBody').addEventListener('click', function () { showVariableModal('body'); }); document.getElementById('closeVariableModal').addEventListener('click', hideVariableModal); document.getElementById('loadTemplateBtn').addEventListener('click', showLoadTemplateModal); document.getElementById('saveTemplateBtn').addEventListener('click', showSaveTemplateModal); document.getElementById('closeTemplateModal').addEventListener('click', hideTemplateModal); document.getElementById('attachFromDriveBtn').addEventListener('click', function () { showDrivePicker(false); }); document.getElementById('attachFromComputerBtn').addEventListener('click', function () { document.getElementById('fileInput').click(); }); document.getElementById('fileInput').addEventListener('change', handleFileSelect); document.getElementById('closeDriveModal').addEventListener('click', hideDrivePicker); document.getElementById('setQuickResumeBtn').addEventListener('click', function () { showDrivePicker(true); }); document.getElementById('scheduleCheckbox').addEventListener('change', function () { document.getElementById('scheduleInputs').style.display = this.checked ? 'flex' : 'none'; if (this.checked) { var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(9, 0, 0, 0); document.getElementById('scheduleDate').value = tomorrow.toISOString().split('T')[0]; document.getElementById('scheduleTime').value = '09:00'; } }); document.getElementById('sendBtn').addEventListener('click', sendEmails); document.getElementById('sendTestBtn').addEventListener('click', sendTestEmail); document.getElementById('startOverBtn').addEventListener('click', resetAndStartOver); document.getElementById('insertLinkBtn').addEventListener('click', insertLink); }
+
+        function resetAndStartOver() {
+            // Reset config values but keep loaded data
+            state.currentStep = 1;
+            state.selectedSheet = '';
+            state.config = { emailColumn: null, nameColumn: null, titleColumn: null, ccColumn: null, bccColumn: null, statusColumn: -1, subject: '', body: '', attachments: [], scheduledTime: null, senderEmail: state.config.senderEmail, startRow: null, endRow: null, delayOption: 'random', customDelay: 3 };
+            state.rowCount = 0;
+
+            // Reset UI elements
+            document.getElementById('sheetSelect').value = '';
+            document.getElementById('rowCountInfo').style.display = 'none';
+            document.getElementById('rowRangeGroup').style.display = 'none';
+            document.getElementById('delayGroup').style.display = 'none';
+            document.getElementById('estimatedTimeBox').style.display = 'none';
+            document.getElementById('subjectInput').value = '';
+            document.getElementById('emailBody').innerHTML = '';
+            document.getElementById('attachmentsList').innerHTML = '<div class="no-attachments">No files attached yet</div>';
+            document.getElementById('scheduleCheckbox').checked = false;
+            document.getElementById('scheduleInputs').style.display = 'none';
+            document.getElementById('footer').style.display = 'flex';
+
+            // Navigate to step 1
+            updateStepUI();
+            showStep('step1');
+        }
+
+        function sendTestEmail() { var select = document.getElementById('fromSelect'); var userEmail = select.value === '__manual__' ? document.getElementById('fromEmailInput').value.trim() : select.value; if (!userEmail || !userEmail.includes('@')) { alert('Please select or enter your email address in step 3 first.'); return; } var btn = document.getElementById('sendTestBtn'); btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sending...'; var previewSubject = document.getElementById('previewSubject').textContent; var previewBody = document.getElementById('previewBody').innerHTML; var config = { to: userEmail, subject: '[TEST] ' + previewSubject, body: previewBody, attachments: state.config.attachments }; google.script.run.withSuccessHandler(function (result) { btn.disabled = false; btn.innerHTML = '<span>🧪</span><span>Send Test Email to Me</span>'; if (result.success) { alert('Test email sent to: ' + result.sentTo + '\n\nCheck your inbox!'); } else { alert('Failed to send test email: ' + result.error); } }).withFailureHandler(function (e) { btn.disabled = false; btn.innerHTML = '<span>🧪</span><span>Send Test Email to Me</span>'; alert('Error: ' + e.message); }).sendTestEmailWithAddress(config); }
+
+        function updateStepUI() { document.getElementById('stepText').textContent = 'Step ' + state.currentStep + ' of ' + state.totalSteps; var progress = (state.currentStep / state.totalSteps) * 100; document.getElementById('progressFill').style.width = progress + '%'; for (var i = 1; i <= state.totalSteps; i++) { var step = document.getElementById('step' + i); if (step) { step.style.display = i === state.currentStep ? 'block' : 'none'; } } document.getElementById('backBtn').style.display = state.currentStep > 1 ? 'block' : 'none'; var nextBtn = document.getElementById('nextBtn'); if (state.currentStep === state.totalSteps) { nextBtn.style.display = 'none'; } else { nextBtn.style.display = 'block'; nextBtn.textContent = 'Next →'; } document.getElementById('footer').style.display = state.currentStep <= state.totalSteps ? 'flex' : 'none'; }
+
+        function nextStep() { if (!validateStep(state.currentStep)) return; if (state.currentStep < state.totalSteps) { state.currentStep++; updateStepUI(); onStepEnter(state.currentStep); } }
+
+        function prevStep() { if (state.currentStep > 1) { state.currentStep--; updateStepUI(); } }
+
+        function validateStep(step) { switch (step) { case 1: if (!state.selectedSheet) { alert('Please select a sheet.'); return false; } var startRowVal = document.getElementById('startRow').value; var endRowVal = document.getElementById('endRow').value; state.config.startRow = startRowVal ? parseInt(startRowVal) : null; state.config.endRow = endRowVal ? parseInt(endRowVal) : null; if (state.config.startRow && state.config.startRow < 2) { alert('Start row must be at least 2 (row 1 is header).'); return false; } if (state.config.endRow && state.config.startRow && state.config.endRow < state.config.startRow) { alert('End row must be greater than or equal to start row.'); return false; } return true; case 2: if (state.config.emailColumn === null) { alert('Please select an email column.'); return false; } return true; case 3: var select = document.getElementById('fromSelect'); var userEmail = select.value === '__manual__' ? document.getElementById('fromEmailInput').value.trim() : select.value; if (!userEmail || !userEmail.includes('@')) { alert('Please select or enter your email address.'); return false; } state.config.senderEmail = userEmail; state.config.subject = document.getElementById('subjectInput').value.trim(); state.config.body = document.getElementById('emailBody').innerHTML; if (!state.config.subject) { alert('Please enter a subject.'); return false; } if (!state.config.body || state.config.body === '<p><br></p>') { alert('Please enter email body.'); return false; } return true; default: return true; } }
+
+        function onStepEnter(step) { switch (step) { case 2: loadColumns(); break; case 3: case 4: loadQuickAttachStatus(); break; case 5: updateReviewSummary(); loadPreview(); checkQuota(); break; } }
+
+        function onSheetChange() { var sheetName = document.getElementById('sheetSelect').value; state.selectedSheet = sheetName; if (sheetName) { google.script.run.withSuccessHandler(function (count) { state.rowCount = count; document.getElementById('rowCountInfo').style.display = 'flex'; document.getElementById('rowCountText').textContent = count + ' rows of data (excluding header)'; document.getElementById('rowRangeGroup').style.display = 'block'; document.getElementById('delayGroup').style.display = 'block'; document.getElementById('estimatedTimeBox').style.display = 'flex'; document.getElementById('startRow').placeholder = '2'; document.getElementById('endRow').placeholder = (count + 1) + ' (last)'; document.getElementById('startRow').value = ''; document.getElementById('endRow').value = ''; state.config.startRow = null; state.config.endRow = null; updateEstimatedTime(); }).getRowCount(sheetName); } else { document.getElementById('rowCountInfo').style.display = 'none'; document.getElementById('rowRangeGroup').style.display = 'none'; document.getElementById('delayGroup').style.display = 'none'; document.getElementById('estimatedTimeBox').style.display = 'none'; } }
+
+        function loadColumns() {
+            // Use cache if available for this sheet
+            if (cache.columns[state.selectedSheet]) {
+                var cachedCols = cache.columns[state.selectedSheet];
+                state.columns = cachedCols;
+                populateColumnSelects(cachedCols);
+                showVariableChips(cachedCols);
+                return;
+            }
+            // Prevent duplicate calls
+            var cacheKey = 'columns_' + state.selectedSheet;
+            if (cache.loading[cacheKey]) return;
+            cache.loading[cacheKey] = true;
+
+            google.script.run.withSuccessHandler(function (columns) {
+                cache.columns[state.selectedSheet] = columns;
+                cache.loading[cacheKey] = false;
+                state.columns = columns;
+                populateColumnSelects(columns);
+                showVariableChips(columns);
+            }).withFailureHandler(function (e) {
+                cache.loading[cacheKey] = false;
+                showError(e);
+            }).getColumns(state.selectedSheet);
+        }
+
+        function populateColumnSelects(columns) { var emailSelect = document.getElementById('emailColumn'); var nameSelect = document.getElementById('nameColumn'); var titleSelect = document.getElementById('titleColumn'); var ccSelect = document.getElementById('ccColumn'); var bccSelect = document.getElementById('bccColumn'); var statusSelect = document.getElementById('statusColumn'); emailSelect.innerHTML = '<option value="">Select email column</option>'; nameSelect.innerHTML = '<option value="">None - Use "Dear Sir/Ma\'am"</option>'; titleSelect.innerHTML = '<option value="">None</option>'; ccSelect.innerHTML = '<option value="">None</option>'; bccSelect.innerHTML = '<option value="">None</option>'; statusSelect.innerHTML = '<option value="-1">Create new column</option>'; columns.forEach(function (col) { var option = '<option value="' + col.index + '">' + col.letter + ': ' + col.name + '</option>'; emailSelect.innerHTML += option; nameSelect.innerHTML += option; titleSelect.innerHTML += option; ccSelect.innerHTML += option; bccSelect.innerHTML += option; statusSelect.innerHTML += option; }); columns.forEach(function (col) { var name = col.name.toLowerCase(); if (name.includes('email') || name.includes('mail')) { emailSelect.value = col.index; state.config.emailColumn = parseInt(col.index); } if (name.includes('name') && !name.includes('company')) { nameSelect.value = col.index; state.config.nameColumn = parseInt(col.index); } if (name.includes('title') || name === 'mr' || name === 'mrs' || name.includes('salutation')) { titleSelect.value = col.index; state.config.titleColumn = parseInt(col.index); } }); emailSelect.addEventListener('change', function () { state.config.emailColumn = this.value !== '' ? parseInt(this.value) : null; }); nameSelect.addEventListener('change', function () { state.config.nameColumn = this.value !== '' ? parseInt(this.value) : null; }); titleSelect.addEventListener('change', function () { state.config.titleColumn = this.value !== '' ? parseInt(this.value) : null; }); ccSelect.addEventListener('change', function () { state.config.ccColumn = this.value !== '' ? parseInt(this.value) : null; }); bccSelect.addEventListener('change', function () { state.config.bccColumn = this.value !== '' ? parseInt(this.value) : null; }); statusSelect.addEventListener('change', function () { state.config.statusColumn = parseInt(this.value); }); }
+
+        function showVariableChips(columns) { var container = document.getElementById('variableChips'); container.innerHTML = '<span class="variable-chip">{{greeting}}</span>'; columns.forEach(function (col) { container.innerHTML += '<span class="variable-chip">{{' + col.name + '}}</span>'; }); document.getElementById('variablesPreview').style.display = 'block'; }
+
+        function showVariableModal(target) { state.targetForVariable = target; var grid = document.getElementById('variableGrid'); grid.innerHTML = '<span class="variable-chip" onclick="insertVariable(\'greeting\')">{{greeting}}</span>'; state.columns.forEach(function (col) { grid.innerHTML += '<span class="variable-chip" onclick="insertVariable(\'' + col.name + '\')">{{' + col.name + '}}</span>'; }); document.getElementById('variableModal').style.display = 'flex'; }
+
+        function hideVariableModal() { document.getElementById('variableModal').style.display = 'none'; }
+
+        function insertVariable(varName) { var varText = '{{' + varName + '}}'; if (state.targetForVariable === 'subject') { var input = document.getElementById('subjectInput'); var start = input.selectionStart; var end = input.selectionEnd; var value = input.value; input.value = value.substring(0, start) + varText + value.substring(end); input.focus(); input.setSelectionRange(start + varText.length, start + varText.length); } else { var editor = document.getElementById('emailBody'); editor.focus(); var sel = window.getSelection(); if (sel.rangeCount > 0) { var range = sel.getRangeAt(0); range.deleteContents(); var textNode = document.createTextNode(varText); range.insertNode(textNode); range.setStartAfter(textNode); range.setEndAfter(textNode); sel.removeAllRanges(); sel.addRange(range); } else { editor.innerHTML += varText; } } hideVariableModal(); }
+
+        function showLoadTemplateModal() {
+            document.getElementById('templateModalTitle').textContent = 'Load Template';
+            var body = document.getElementById('templateModalBody');
+            document.getElementById('templateModal').style.display = 'flex';
+
+            // Use cached templates if available (from prefetch)
+            if (cache.templates) {
+                renderTemplates(cache.templates, body);
+                return;
+            }
+
+            body.innerHTML = '<div class="loading"><span class="spinner"></span> Loading...</div>';
+
+            google.script.run.withSuccessHandler(function (templates) {
+                cache.templates = templates;  // Cache for next time
+                renderTemplates(templates, body);
+            }).withFailureHandler(function (e) {
+                body.innerHTML = '<p>Error loading templates. Please try again.</p><button class="btn-secondary" onclick="installDefaults()">Install Default Templates</button>';
+            }).getTemplates();
+        }
+
+        function renderTemplates(templates, body) {
+            if (templates && templates.error) {
+                body.innerHTML = '<p>Error: ' + templates.error + '</p>';
+                return;
+            }
+            if (!templates || templates.length === 0) {
+                body.innerHTML = '<p>No templates saved yet.</p><button class="btn-secondary" onclick="installDefaults()">Install Default Templates</button>';
+                return;
+            }
+            body.innerHTML = '';
+            templates.forEach(function (t) {
+                body.innerHTML += '<div class="template-item" onclick="loadTemplate(\'' + t.id + '\')"><h4>' + escapeHtml(t.name) + '</h4><p>' + escapeHtml(t.subject || 'No subject') + '</p></div>';
+            });
+        }
+
+        function installDefaults() { google.script.run.withSuccessHandler(function () { showLoadTemplateModal(); }).installDefaultTemplates(); }
+
+        function loadTemplate(templateId) { google.script.run.withSuccessHandler(function (result) { if (result.success) { document.getElementById('subjectInput').value = result.template.subject || ''; document.getElementById('emailBody').innerHTML = result.template.body || ''; hideTemplateModal(); } else { alert('Error loading template: ' + result.error); } }).loadTemplate(templateId); }
+
+        function showSaveTemplateModal() { document.getElementById('templateModalTitle').textContent = 'Save Template'; document.getElementById('templateModalBody').innerHTML = '<div class="form-group"><label for="templateName">Template Name</label><input type="text" id="templateName" class="text-input" placeholder="My Template"></div><button class="btn-primary" onclick="saveTemplate()">Save Template</button>'; document.getElementById('templateModal').style.display = 'flex'; }
+
+        function saveTemplate() { var name = document.getElementById('templateName').value.trim(); if (!name) { alert('Please enter a template name.'); return; } var templateData = { name: name, subject: document.getElementById('subjectInput').value, body: document.getElementById('emailBody').innerHTML }; google.script.run.withSuccessHandler(function (result) { if (result.success) { cache.templates = null; alert('Template saved!'); hideTemplateModal(); } else { alert('Error: ' + result.error); } }).saveTemplate(templateData); }
+
+        function hideTemplateModal() { document.getElementById('templateModal').style.display = 'none'; }
+
+        function loadQuickAttachStatus() { google.script.run.withSuccessHandler(function (resume) { var content = document.getElementById('quickAttachContent'); if (resume && resume.fileId) { content.innerHTML = '<div class="quick-resume-active"><span>📄 ' + resume.fileName + '</span><button class="btn-secondary" style="flex:0;padding:6px 12px;" onclick="attachQuickResume()">Attach</button></div><button class="btn-link" style="margin-top:8px;" onclick="showQuickResumeSetup()">Change</button>'; } else { content.innerHTML = '<button type="button" class="btn-secondary" onclick="showQuickResumeSetup()">Set My Resume</button>'; } }).getQuickAttachResume(); }
+
+        function showQuickResumeSetup() { showDrivePicker(true); }
+
+        function attachQuickResume() { google.script.run.withSuccessHandler(function (resume) { if (resume && resume.fileId) { addAttachment({ fileId: resume.fileId, name: resume.fileName, type: 'drive' }); } }).getQuickAttachResume(); }
+
+        var drivePickerState = { isQuickResume: false, currentFolderId: null };
+
+        function showDrivePicker(isQuickResume, folderId) {
+            drivePickerState.isQuickResume = isQuickResume;
+            drivePickerState.currentFolderId = folderId || null;
+
+            document.getElementById('drivePickerModal').style.display = 'flex';
+            var container = document.getElementById('driveFiles');
+            container.innerHTML = '<div class="loading"><span class="spinner"></span> Loading...</div>';
+
+            google.script.run.withSuccessHandler(function (result) {
+                if (result.error) {
+                    container.innerHTML = '<p>Error: ' + result.error + '</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                // Add breadcrumb/navigation header
+                var navHtml = '<div class="drive-nav">';
+                if (result.parentFolderId) {
+                    navHtml += '<button type="button" class="drive-back-btn" onclick="showDrivePicker(' + isQuickResume + ', \'' + result.parentFolderId + '\')">← Back</button>';
+                }
+                navHtml += '<span class="drive-current-folder">📁 ' + escapeHtml(result.currentFolderName) + '</span>';
+                navHtml += '</div>';
+                container.innerHTML = navHtml;
+
+                if (result.items.length === 0) {
+                    container.innerHTML += '<div class="no-scheduled" style="padding:20px;"><p>This folder is empty</p></div>';
+                    return;
+                }
+
+                // Render items (folders and files)
+                result.items.forEach(function (item) {
+                    var iconInfo = getFileIconAndType(item.mimeType);
+
+                    if (item.isFolder) {
+                        // Folder - click to navigate inside
+                        container.innerHTML +=
+                            '<div class="drive-file drive-folder-item" onclick="showDrivePicker(' + isQuickResume + ', \'' + item.id + '\')">' +
+                            '<span class="drive-file-icon">' + iconInfo.icon + '</span>' +
+                            '<div class="drive-file-info">' +
+                            '<div class="drive-file-name">' + escapeHtml(item.name) + '</div>' +
+                            '<div class="drive-file-type">' +
+                            '<span class="drive-file-type-badge ' + iconInfo.typeClass + '">' + iconInfo.typeName + '</span>' +
+                            '<span style="font-size:11px;color:var(--text-secondary);margin-left:8px;">Click to open</span>' +
+                            '</div>' +
+                            '</div>' +
+                            '<span class="drive-folder-arrow">→</span>' +
+                            '</div>';
+                    } else {
+                        // File - click to select
+                        container.innerHTML +=
+                            '<div class="drive-file" onclick="selectDriveFile(\'' + item.id + '\',\'' + escapeHtml(item.name).replace(/'/g, "\\'") + '\',' + isQuickResume + ')">' +
+                            '<span class="drive-file-icon">' + iconInfo.icon + '</span>' +
+                            '<div class="drive-file-info">' +
+                            '<div class="drive-file-name">' + escapeHtml(item.name) + '</div>' +
+                            '<div class="drive-file-type">' +
+                            '<span class="drive-file-type-badge ' + iconInfo.typeClass + '">' + iconInfo.typeName + '</span>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>';
+                    }
+                });
+            }).getDriveFiles(folderId);
+        }
+
+        function getFileIconAndType(mimeType) {
+            if (mimeType.includes('folder')) return { icon: '📁', typeName: 'Folder', typeClass: 'folder' };
+            if (mimeType.includes('pdf')) return { icon: '📕', typeName: 'PDF', typeClass: 'pdf' };
+            if (mimeType.includes('word') || mimeType.includes('document')) return { icon: '📘', typeName: 'Document', typeClass: 'doc' };
+            if (mimeType.includes('sheet') || mimeType.includes('excel') || mimeType.includes('spreadsheet')) return { icon: '📗', typeName: 'Spreadsheet', typeClass: 'sheet' };
+            if (mimeType.includes('presentation') || mimeType.includes('powerpoint')) return { icon: '📙', typeName: 'Slides', typeClass: 'doc' };
+            if (mimeType.includes('image')) return { icon: '🖼️', typeName: 'Image', typeClass: 'image' };
+            if (mimeType.includes('video')) return { icon: '🎬', typeName: 'Video', typeClass: 'other' };
+            if (mimeType.includes('audio')) return { icon: '🎵', typeName: 'Audio', typeClass: 'other' };
+            if (mimeType.includes('zip') || mimeType.includes('archive') || mimeType.includes('compressed')) return { icon: '📦', typeName: 'Archive', typeClass: 'other' };
+            if (mimeType.includes('text')) return { icon: '📝', typeName: 'Text', typeClass: 'other' };
+            return { icon: '📄', typeName: 'File', typeClass: 'other' };
+        }
+
+        function selectDriveFile(fileId, fileName, isQuickResume) { if (isQuickResume) { google.script.run.withSuccessHandler(function () { hideDrivePicker(); loadQuickAttachStatus(); }).saveQuickAttachResume(fileId, fileName); } else { addAttachment({ fileId: fileId, name: fileName, type: 'drive' }); hideDrivePicker(); } }
+
+        function hideDrivePicker() { document.getElementById('drivePickerModal').style.display = 'none'; drivePickerState.currentFolderId = null; }
+
+        function handleFileSelect(e) { var files = e.target.files; for (var i = 0; i < files.length; i++) { (function (file) { var reader = new FileReader(); reader.onload = function (event) { addAttachment({ name: file.name, mimeType: file.type, bytes: event.target.result.split(',')[1], type: 'local' }); }; reader.readAsDataURL(file); })(files[i]); } }
+
+        function addAttachment(attachment) { if (state.config.attachments.find(function (a) { return a.name === attachment.name; })) { alert('File already attached.'); return; } state.config.attachments.push(attachment); renderAttachments(); }
+
+        function removeAttachment(index) { state.config.attachments.splice(index, 1); renderAttachments(); }
+
+        function renderAttachments() { var container = document.getElementById('attachmentsList'); if (state.config.attachments.length === 0) { container.innerHTML = '<div class="no-attachments">No files attached yet</div>'; return; } container.innerHTML = ''; state.config.attachments.forEach(function (att, index) { var icon = att.type === 'drive' ? '📁' : '📄'; container.innerHTML += '<div class="attachment-item"><span class="attachment-name">' + icon + ' ' + att.name + '</span><button class="attachment-remove" onclick="removeAttachment(' + index + ')">×</button></div>'; }); }
+
+        function getFileIcon(mimeType) { if (mimeType.includes('pdf')) return '📕'; if (mimeType.includes('word') || mimeType.includes('document')) return '📘'; if (mimeType.includes('sheet') || mimeType.includes('excel')) return '📗'; if (mimeType.includes('image')) return '🖼️'; return '📄'; }
+
+        function updateReviewSummary() { document.getElementById('summaryRecipients').textContent = state.rowCount + ' emails'; document.getElementById('summarySubject').textContent = state.config.subject || '-'; document.getElementById('summaryAttachments').textContent = state.config.attachments.length > 0 ? state.config.attachments.map(function (a) { return a.name; }).join(', ') : 'None'; }
+
+        function loadPreview() { google.script.run.withSuccessHandler(function (rows) { if (rows && rows.length > 0) { var first = rows[0]; document.getElementById('previewTo').textContent = first.email || '-'; var subject = state.config.subject; var body = state.config.body; var greeting = first.name ? 'Dear ' + first.name : "Dear Sir/Ma'am"; subject = subject.replace(/\{\{greeting\}\}/gi, greeting); body = body.replace(/\{\{greeting\}\}/gi, greeting); for (var key in first.data) { var regex = new RegExp('\\{\\{' + escapeRegex(key) + '\\}\\}', 'gi'); subject = subject.replace(regex, first.data[key] || ''); body = body.replace(regex, first.data[key] || ''); } document.getElementById('previewSubject').textContent = subject; document.getElementById('previewBody').innerHTML = body; } }).getPreviewData(state.selectedSheet, state.config.emailColumn, state.config.nameColumn); }
+
+        function checkQuota() { google.script.run.withSuccessHandler(function (result) { if (result.remaining < state.rowCount) { document.getElementById('quotaWarning').style.display = 'flex'; document.getElementById('quotaText').textContent = 'Warning: ' + result.remaining + ' emails remaining, trying to send ' + state.rowCount + '.'; } }).canSendEmails(state.rowCount); }
+
+        function sendEmails() {
+            if (document.getElementById('scheduleCheckbox').checked) {
+                var date = document.getElementById('scheduleDate').value;
+                var time = document.getElementById('scheduleTime').value;
+                if (date && time) { state.config.scheduledTime = new Date(date + 'T' + time).toISOString(); }
+            }
+            showStep('stepSending');
+            document.getElementById('footer').style.display = 'none';
+
+            var startRow = state.config.startRow || 2;
+            var endRow = state.config.endRow || (state.rowCount + 1);
+            var actualRowCount = endRow - startRow + 1;
+            var avgDelay = getAverageDelay();
+
+            // Initialize progress UI
+            document.getElementById('sentCount').textContent = '0';
+            document.getElementById('remainingCount').textContent = actualRowCount;
+            document.getElementById('failedCount').textContent = '0';
+            document.getElementById('sendProgressBar').style.width = '0%';
+            document.getElementById('elapsedTime').textContent = '00:00';
+            document.getElementById('remainingTime').textContent = formatTimeShort(actualRowCount * (avgDelay + 0.5));
+            document.getElementById('sendingStatus').textContent = 'Starting...';
+            document.getElementById('currentEmail').textContent = '';
+
+            var config = {
+                sheetName: state.selectedSheet,
+                emailColumn: state.config.emailColumn,
+                nameColumn: state.config.nameColumn,
+                titleColumn: state.config.titleColumn,
+                ccColumn: state.config.ccColumn,
+                bccColumn: state.config.bccColumn,
+                subject: state.config.subject,
+                body: state.config.body,
+                attachments: state.config.attachments,
+                statusColumn: state.config.statusColumn,
+                scheduledTime: state.config.scheduledTime,
+                senderEmail: state.config.senderEmail,
+                startRow: state.config.startRow,
+                endRow: state.config.endRow,
+                delayOption: state.config.delayOption,
+                delayMin: state.config.delayMin || parseInt(document.getElementById('delayMinSeconds').value) || 2,
+                delayMax: state.config.delayMax || parseInt(document.getElementById('delayMaxSeconds').value) || 6,
+                fixedDelay: state.config.fixedDelay || parseInt(document.getElementById('fixedDelaySeconds').value) || 3
+            };
+
+            var startTime = Date.now();
+            var sent = 0;
+            var failed = 0;
+
+            // Timer for elapsed time
+            var timerInterval = setInterval(function () {
+                var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById('elapsedTime').textContent = formatTimeShort(elapsed);
+
+                // Estimate remaining time
+                if (sent > 0) {
+                    var avgTimePerEmail = elapsed / sent;
+                    var remaining = (actualRowCount - sent) * avgTimePerEmail;
+                    document.getElementById('remainingTime').textContent = formatTimeShort(remaining);
+                }
+            }, 1000);
+
+            google.script.run
+                .withSuccessHandler(function (result) {
+                    clearInterval(timerInterval);
+                    showSendComplete(result);
+                })
+                .withFailureHandler(function (error) {
+                    clearInterval(timerInterval);
+                    showStep('step5');
+                    document.getElementById('footer').style.display = 'flex';
+                    alert('Error: ' + error.message);
+                })
+                .sendEmails(config);
+
+            // Simulated progress (backend sends actual updates)
+            var progressInterval = setInterval(function () {
+                if (sent < actualRowCount) {
+                    sent++;
+                    var progress = Math.round((sent / actualRowCount) * 100);
+                    document.getElementById('sentCount').textContent = sent;
+                    document.getElementById('remainingCount').textContent = actualRowCount - sent;
+                    document.getElementById('sendProgressBar').style.width = progress + '%';
+                    document.getElementById('sendingStatus').textContent = 'Sending email ' + sent + ' of ' + actualRowCount + '...';
+                } else {
+                    clearInterval(progressInterval);
+                    document.getElementById('sendingStatus').textContent = 'Finalizing...';
+                }
+            }, (avgDelay + 0.5) * 1000);
+        }
+
+        function showStep(stepId) { document.querySelectorAll('.step').forEach(function (s) { s.style.display = 'none'; }); document.getElementById(stepId).style.display = 'block'; }
+
+        function showSendComplete(result) {
+            showStep('stepComplete');
+            document.getElementById('statSent').textContent = result.sent;
+            document.getElementById('statFailed').textContent = result.failed;
+
+            // Handle cancelled state
+            if (result.cancelled) {
+                document.querySelector('#stepComplete .complete-icon').textContent = '⚠️';
+                document.querySelector('#stepComplete h2').textContent = 'Sending Stopped';
+            } else {
+                document.querySelector('#stepComplete .complete-icon').textContent = '✅';
+                document.querySelector('#stepComplete h2').textContent = 'All Done!';
+            }
+
+            if (result.failed > 0) {
+                document.getElementById('viewErrorsBtn').style.display = 'block';
+                document.getElementById('viewErrorsBtn').onclick = function () {
+                    alert('Errors:\n' + result.errors.map(function (e) { return 'Row ' + e.row + ': ' + e.error; }).join('\n'));
+                };
+            }
+        }
+
+
+
+        function showError(error) { alert('Error: ' + error.message); }
+
+        function escapeHtml(text) { var div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+        function escapeRegex(string) { return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+        function insertLink() { var url = prompt('Enter URL:'); if (url) { var text = prompt('Enter link text:', url); document.execCommand('insertHTML', false, '<a href="' + url + '" target="_blank">' + (text || url) + '</a>'); } }
+
+        window.insertVariable = insertVariable; window.loadTemplate = loadTemplate; window.installDefaults = installDefaults; window.saveTemplate = saveTemplate; window.selectDriveFile = selectDriveFile; window.removeAttachment = removeAttachment; window.attachQuickResume = attachQuickResume; window.showQuickResumeSetup = showQuickResumeSetup;
+
+        // Delay option event listeners
+        document.querySelectorAll('input[name="delayOption"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                state.config.delayOption = this.value;
+                // Enable/disable inputs based on selection
+                document.getElementById('delayMinSeconds').disabled = (this.value !== 'random');
+                document.getElementById('delayMaxSeconds').disabled = (this.value !== 'random');
+                document.getElementById('fixedDelaySeconds').disabled = (this.value !== 'fixed');
+                updateEstimatedTime();
+            });
+        });
+        document.getElementById('delayMinSeconds').addEventListener('change', function () {
+            state.config.delayMin = parseInt(this.value) || 2;
+            updateEstimatedTime();
+        });
+        document.getElementById('delayMaxSeconds').addEventListener('change', function () {
+            state.config.delayMax = parseInt(this.value) || 6;
+            updateEstimatedTime();
+        });
+        document.getElementById('fixedDelaySeconds').addEventListener('change', function () {
+            state.config.fixedDelay = parseInt(this.value) || 3;
+            updateEstimatedTime();
+        });
+        document.getElementById('startRow').addEventListener('change', updateEstimatedTime);
+        document.getElementById('endRow').addEventListener('change', updateEstimatedTime);
+
+        function getAverageDelay() {
+            var delayOption = state.config.delayOption;
+            if (delayOption === 'none') return 0;
+            if (delayOption === 'fixed') return state.config.fixedDelay || 3;
+            // Random: average of min and max
+            var min = state.config.delayMin || parseInt(document.getElementById('delayMinSeconds').value) || 2;
+            var max = state.config.delayMax || parseInt(document.getElementById('delayMaxSeconds').value) || 6;
+            return (min + max) / 2;
+        }
+
+        function updateEstimatedTime() {
+            var startRow = parseInt(document.getElementById('startRow').value) || 2;
+            var endRow = parseInt(document.getElementById('endRow').value) || (state.rowCount + 1);
+            var emailCount = Math.max(0, endRow - startRow + 1);
+            var avgDelay = getAverageDelay();
+            var totalSeconds = emailCount * (avgDelay + 0.5); // 0.5s for processing
+            document.getElementById('estimatedTimeText').textContent = 'Estimated time: ' + formatTime(totalSeconds) + ' for ' + emailCount + ' emails';
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 60) return Math.round(seconds) + ' seconds';
+            var mins = Math.floor(seconds / 60);
+            var secs = Math.round(seconds % 60);
+            if (mins < 60) return mins + ' min ' + secs + ' sec';
+            var hours = Math.floor(mins / 60);
+            mins = mins % 60;
+            return hours + 'h ' + mins + 'm';
+        }
+
+        function formatTimeShort(seconds) {
+            var mins = Math.floor(seconds / 60);
+            var secs = Math.floor(seconds % 60);
+            return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        }
+
+        // Stop Sending Function
+        function stopSending() {
+            var btn = document.getElementById('stopSendingBtn');
+            if (!confirm('Are you sure you want to stop sending emails?\n\nEmails already sent cannot be recalled, but remaining emails will not be sent.')) {
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Stopping...';
+            document.getElementById('sendingStatus').textContent = 'Stopping... Please wait for current email to finish.';
+
+            google.script.run
+                .withSuccessHandler(function (result) {
+                    if (result.success) {
+                        btn.innerHTML = '✓ Stop Requested';
+                        document.getElementById('sendingStatus').textContent = 'Stop requested. Waiting for current operation to complete...';
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = '⛔ Stop Sending';
+                        alert('Could not stop: ' + result.error);
+                    }
+                })
+                .withFailureHandler(function (error) {
+                    btn.disabled = false;
+                    btn.innerHTML = '⛔ Stop Sending';
+                    alert('Error: ' + error.message);
+                })
+                .requestCancelSending();
+        }
+
+        window.stopSending = stopSending;
+
+        // Scheduled Emails Functions
+        function loadScheduledEmailsBadge() {
+            google.script.run.withSuccessHandler(function (result) {
+                if (result.success && result.emails.length > 0) {
+                    document.getElementById('scheduledBadge').style.display = 'block';
+                    document.getElementById('scheduledBadge').textContent = result.emails.length;
+                } else {
+                    document.getElementById('scheduledBadge').style.display = 'none';
+                }
+                updateMenuBadgeVis();
+            }).getScheduledEmails();
+        }
+
+        function showScheduledEmailsModal() {
+            document.getElementById('scheduledModal').style.display = 'flex';
+            document.getElementById('scheduledModalBody').innerHTML = '<div class="loading"><span class="spinner"></span> Loading...</div>';
+            document.getElementById('scheduledModalFooter').style.display = 'none';
+
+            google.script.run.withSuccessHandler(function (result) {
+                var body = document.getElementById('scheduledModalBody');
+                var footer = document.getElementById('scheduledModalFooter');
+
+                if (!result.success) {
+                    body.innerHTML = '<p>Error: ' + result.error + '</p>';
+                    return;
+                }
+
+                if (result.emails.length === 0) {
+                    body.innerHTML = '<div class="no-scheduled"><div class="no-scheduled-icon">📭</div><p>No scheduled emails</p><p style="font-size:12px;">When you schedule emails, they will appear here.</p></div>';
+                    footer.style.display = 'none';
+                    return;
+                }
+
+                body.innerHTML = '';
+                result.emails.forEach(function (email) {
+                    var countdown = formatCountdown(email.timeRemaining);
+                    body.innerHTML += '<div class="scheduled-email-item" data-id="' + email.id + '">' +
+                        '<div class="scheduled-email-info">' +
+                        '<div class="scheduled-email-subject">' + escapeHtml(email.subject) + '</div>' +
+                        '<div class="scheduled-email-time">📅 ' + email.scheduledTimeFormatted + '</div>' +
+                        '<div class="scheduled-email-countdown">⏳ ' + countdown + '</div>' +
+                        '</div>' +
+                        '<button type="button" class="btn-cancel-small" onclick="cancelScheduledEmail(\'' + email.id + '\')">Cancel</button>' +
+                        '</div>';
+                });
+
+                footer.style.display = 'block';
+            }).getScheduledEmails();
+        }
+
+        function formatCountdown(ms) {
+            if (ms <= 0) return 'Sending now...';
+            var seconds = Math.floor(ms / 1000);
+            var mins = Math.floor(seconds / 60);
+            var hours = Math.floor(mins / 60);
+            var days = Math.floor(hours / 24);
+
+            if (days > 0) return days + 'd ' + (hours % 24) + 'h remaining';
+            if (hours > 0) return hours + 'h ' + (mins % 60) + 'm remaining';
+            if (mins > 0) return mins + 'm remaining';
+            return seconds + 's remaining';
+        }
+
+        function cancelScheduledEmail(draftId) {
+            if (!confirm('Cancel this scheduled email?')) return;
+
+            google.script.run.withSuccessHandler(function (result) {
+                if (result.success) {
+                    showScheduledEmailsModal(); // Refresh the list
+                    loadScheduledEmailsBadge(); // Update badge
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            }).cancelScheduledEmail(draftId);
+        }
+
+        function cancelAllScheduledEmails() {
+            if (!confirm('Cancel ALL scheduled emails? This cannot be undone.')) return;
+
+            google.script.run.withSuccessHandler(function (result) {
+                if (result.success) {
+                    showScheduledEmailsModal(); // Refresh the list
+                    loadScheduledEmailsBadge(); // Update badge
+                    alert('All scheduled emails cancelled.');
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            }).cancelAllScheduledEmails();
+        }
+
+        function hideScheduledModal() {
+            document.getElementById('scheduledModal').style.display = 'none';
+        }
+
+        // Add event listeners for scheduled emails (modal controls only - button is now in dropdown menu)
+        document.getElementById('closeScheduledModal').addEventListener('click', hideScheduledModal);
+        document.getElementById('cancelAllScheduledBtn').addEventListener('click', cancelAllScheduledEmails);
+
+        // Load badge on init
+        setTimeout(loadScheduledEmailsBadge, 1000);
+
+        window.cancelScheduledEmail = cancelScheduledEmail;
+
+        // ================== Script Monitor Functions ==================
+        var scriptMonitorRefreshInterval = null;
+        var currentMonitorTab = 'running';
+
+        function showScriptMonitorModal() {
+            document.getElementById('scriptMonitorModal').style.display = 'flex';
+            loadScriptMonitorContent();
+            scriptMonitorRefreshInterval = setInterval(function () {
+                if (currentMonitorTab === 'running') {
+                    loadScriptMonitorContent();
+                }
+            }, 3000);
+        }
+
+        function hideScriptMonitorModal() {
+            document.getElementById('scriptMonitorModal').style.display = 'none';
+            if (scriptMonitorRefreshInterval) {
+                clearInterval(scriptMonitorRefreshInterval);
+                scriptMonitorRefreshInterval = null;
+            }
+        }
+
+        function loadScriptMonitorContent() {
+            var container = document.getElementById('scriptMonitorContent');
+
+            google.script.run
+                .withSuccessHandler(function (result) {
+                    if (!result.success) {
+                        container.innerHTML = '<p>Error: ' + result.error + '</p>';
+                        return;
+                    }
+                    renderScriptMonitor(result, currentMonitorTab);
+                    updateRunningBadge(result.running);
+                })
+                .withFailureHandler(function (e) {
+                    container.innerHTML = '<p>Error: ' + e.message + '</p>';
+                })
+                .getScriptExecutionStatus();
+        }
+
+        function renderScriptMonitor(data, tab) {
+            var container = document.getElementById('scriptMonitorContent');
+            var scripts = tab === 'running' ? data.running : data.history;
+
+            if (!scripts || scripts.length === 0) {
+                var emptyMsg = tab === 'running'
+                    ? '<div class="no-scripts"><div class="no-scripts-icon">✨</div><p>No scripts running</p></div>'
+                    : '<div class="no-scripts"><div class="no-scripts-icon">📭</div><p>No history</p></div>';
+                container.innerHTML = emptyMsg;
+                return;
+            }
+
+            var html = '';
+            scripts.forEach(function (script) {
+                var statusClass = script.status.toLowerCase();
+                var badge = '<span class="script-status-badge ' + statusClass + '">' + script.status + '</span>';
+
+                var progressBar = '';
+                if (script.status === 'Running' && script.total > 0) {
+                    var pct = Math.round((script.sent / script.total) * 100);
+                    progressBar = '<div class="script-progress-bar"><div class="script-progress-fill" style="width:' + pct + '%"></div></div>';
+                }
+
+                var stats = '<div class="script-stats">';
+                stats += '<div class="script-stat">📧 <strong>' + script.sent + '</strong>/' + script.total + '</div>';
+                if (script.failed > 0) stats += '<div class="script-stat">❌ ' + script.failed + '</div>';
+                if (script.timeRemaining) stats += '<div class="script-stat">⏳ ' + script.timeRemaining + '</div>';
+                if (script.elapsed) stats += '<div class="script-stat">⏱️ ' + script.elapsed + '</div>';
+                stats += '</div>';
+
+                var actions = script.status === 'Running'
+                    ? '<div class="script-actions"><button class="btn-cancel-small" onclick="cancelRunningScript()">⛔ Stop</button></div>'
+                    : '';
+
+                html += '<div class="script-item ' + statusClass + '">';
+                html += '<div class="script-item-header"><div class="script-item-title">' + badge + ' ' + escapeHtml(script.subject || 'Campaign') + '</div>';
+                html += '<div class="script-item-time">' + script.startTime + '</div></div>';
+                html += progressBar + stats + actions + '</div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        function updateRunningBadge(running) {
+            var badge = document.getElementById('runningBadge');
+            badge.style.display = running && running.length > 0 ? 'inline-block' : 'none';
+            updateMenuBadgeVis();
+        }
+
+        function updateMenuBadgeVis() {
+            var running = document.getElementById('runningBadge').style.display !== 'none';
+            var scheduled = document.getElementById('scheduledBadge').style.display !== 'none';
+            var menuBadge = document.getElementById('menuBadge');
+
+            if (running || scheduled) {
+                menuBadge.style.display = 'block';
+                // Green for running, Yellow (warning class) for just scheduled
+                if (running) {
+                    menuBadge.style.background = 'var(--success)';
+                    menuBadge.textContent = '●';
+                } else {
+                    menuBadge.style.background = 'var(--warning)';
+                    menuBadge.textContent = '!';
+                }
+            } else {
+                menuBadge.style.display = 'none';
+            }
+        }
+
+        function cancelRunningScript() {
+            if (!confirm('Stop sending? Emails already sent cannot be recalled.')) return;
+            google.script.run.withSuccessHandler(function (r) {
+                if (r.success) loadScriptMonitorContent();
+                else alert('Error: ' + r.error);
+            }).requestCancelSending();
+        }
+
+        function switchMonitorTab(tab) {
+            currentMonitorTab = tab;
+            document.querySelectorAll('.monitor-tab').forEach(function (t) {
+                t.classList.toggle('active', t.dataset.tab === tab);
+            });
+            loadScriptMonitorContent();
+        }
+
+        // Header Dropdown Menu
+        function toggleHeaderMenu() {
+            var dropdown = document.getElementById('headerDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function hideHeaderMenu() {
+            document.getElementById('headerDropdown').style.display = 'none';
+        }
+
+        // Menu button click
+        document.getElementById('headerMenuBtn').addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleHeaderMenu();
+        });
+
+        // Menu item clicks
+        document.getElementById('menuScriptMonitor').addEventListener('click', function () {
+            hideHeaderMenu();
+            google.script.run.showActivityMonitor();
+        });
+
+        document.getElementById('menuScheduledEmails').addEventListener('click', function () {
+            hideHeaderMenu();
+            showScheduledEmailsModal();
+        });
+
+        document.getElementById('menuCampaigns').addEventListener('click', function () {
+            hideHeaderMenu();
+            google.script.run.showScheduledCampaignsManager();
+        });
+
+        document.getElementById('menuSettings').addEventListener('click', function () {
+            hideHeaderMenu();
+            alert('Settings coming soon!');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.header-menu-container')) {
+                hideHeaderMenu();
+            }
+        });
+
+        // Script monitor modal close
+        document.getElementById('closeScriptMonitorModal').addEventListener('click', hideScriptMonitorModal);
+        document.querySelectorAll('.monitor-tab').forEach(function (tab) {
+            tab.addEventListener('click', function () { switchMonitorTab(this.dataset.tab); });
+        });
+
+        setTimeout(function () {
+            google.script.run.withSuccessHandler(function (r) {
+                if (r.success) updateRunningBadge(r.running);
+            }).getScriptExecutionStatus();
+        }, 1500);
+
+        window.cancelRunningScript = cancelRunningScript;
+
+        // ==================== Schedule Campaign Functions ====================
+        function showScheduleCampaignModal() {
+            // Set default date/time (tomorrow at 10:00 AM)
+            var tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            var dateStr = tomorrow.toISOString().split('T')[0];
+            document.getElementById('campaignDate').value = dateStr;
+            document.getElementById('campaignTime').value = '10:00';
+
+            // Update campaign summary
+            var startRow = parseInt(document.getElementById('startRow').value) || 2;
+            var endRow = parseInt(document.getElementById('endRow').value) || (state.rowCount + 1);
+            var recipientCount = Math.max(0, endRow - startRow + 1);
+            document.getElementById('campaignRecipients').textContent = recipientCount;
+
+            // Get delay info
+            var delayOption = state.config.delayOption || 'random';
+            var delayText = 'No delay';
+            if (delayOption === 'random') {
+                var min = parseInt(document.getElementById('delayMinSeconds').value) || 2;
+                var max = parseInt(document.getElementById('delayMaxSeconds').value) || 6;
+                delayText = 'Random ' + min + '-' + max + 's';
+            } else if (delayOption === 'fixed') {
+                var fixed = parseInt(document.getElementById('fixedDelaySeconds').value) || 3;
+                delayText = 'Fixed ' + fixed + 's';
+            }
+            document.getElementById('campaignDelay').textContent = delayText;
+
+            // Estimate duration
+            var avgDelay = getAverageDelay();
+            var totalSeconds = recipientCount * (avgDelay + 0.5);
+            document.getElementById('campaignDuration').textContent = '~' + formatTime(totalSeconds);
+
+            document.getElementById('scheduleCampaignModal').style.display = 'flex';
+        }
+
+        function hideScheduleCampaignModal() {
+            document.getElementById('scheduleCampaignModal').style.display = 'none';
+        }
+
+        function confirmScheduleCampaign() {
+            var date = document.getElementById('campaignDate').value;
+            var time = document.getElementById('campaignTime').value;
+
+            if (!date || !time) {
+                alert('Please select both date and time.');
+                return;
+            }
+
+            var scheduledTime = new Date(date + 'T' + time);
+            if (scheduledTime <= new Date()) {
+                alert('Please select a future date and time.');
+                return;
+            }
+
+            // Build config same as sendEmails
+            var config = {
+                sheetName: state.selectedSheet,
+                emailColumn: state.config.emailColumn,
+                nameColumn: state.config.nameColumn,
+                titleColumn: state.config.titleColumn,
+                ccColumn: state.config.ccColumn,
+                bccColumn: state.config.bccColumn,
+                subject: state.config.subject,
+                body: state.config.body,
+                attachments: state.config.attachments,
+                statusColumn: state.config.statusColumn,
+                senderEmail: state.config.senderEmail,
+                startRow: state.config.startRow,
+                endRow: state.config.endRow,
+                delayOption: state.config.delayOption,
+                delayMin: state.config.delayMin || parseInt(document.getElementById('delayMinSeconds').value) || 2,
+                delayMax: state.config.delayMax || parseInt(document.getElementById('delayMaxSeconds').value) || 6,
+                fixedDelay: state.config.fixedDelay || parseInt(document.getElementById('fixedDelaySeconds').value) || 3
+            };
+
+            document.getElementById('confirmScheduleCampaignBtn').disabled = true;
+            document.getElementById('confirmScheduleCampaignBtn').innerHTML = '<span class="spinner"></span> Scheduling...';
+
+            google.script.run
+                .withSuccessHandler(function (result) {
+                    document.getElementById('confirmScheduleCampaignBtn').disabled = false;
+                    document.getElementById('confirmScheduleCampaignBtn').innerHTML = '<span>🚀</span> Confirm Schedule';
+
+                    if (result.success) {
+                        hideScheduleCampaignModal();
+
+                        // Hide all other steps to prevent overlap
+                        var steps = ['step1', 'step2', 'step3', 'step4', 'step5', 'stepSending', 'stepScheduledSuccess', 'stepComplete'];
+                        steps.forEach(function (id) {
+                            var el = document.getElementById(id);
+                            if (el) el.style.display = 'none';
+                        });
+
+                        // Success Screen Logic
+                        document.getElementById('scheduledCount').textContent = document.getElementById('summaryRecipients').textContent;
+                        var durationText = document.getElementById('campaignDuration').textContent;
+                        document.getElementById('scheduledDuration').textContent = durationText.replace('~', '').trim();
+                        document.getElementById('scheduledTimeDetail').textContent = result.scheduledTime;
+                        document.getElementById('currentScheduledId').value = result.campaignId;
+
+                        document.getElementById('step5').style.display = 'none';
+                        document.getElementById('stepScheduledSuccess').style.display = 'block';
+                        document.getElementById('footer').style.display = 'none';
+
+                        // Update badges
+                        google.script.run.withSuccessHandler(function (r) {
+                            if (r.success) {
+                                document.getElementById('campaignBadge').textContent = r.campaigns.length;
+                                document.getElementById('campaignBadge').style.display = r.campaigns.length > 0 ? 'inline-block' : 'none';
+                            }
+                        }).getScheduledCampaigns();
+                    } else {
+                        alert('Error: ' + result.error);
+                    }
+                })
+                .withFailureHandler(function (e) {
+                    document.getElementById('confirmScheduleCampaignBtn').disabled = false;
+                    document.getElementById('confirmScheduleCampaignBtn').innerHTML = '<span>🚀</span> Confirm Schedule';
+                    alert('Error: ' + e.message);
+                })
+                .scheduleEmailCampaign(config, scheduledTime.toISOString());
+        }
+
+        // New Buttons Listeners
+        document.getElementById('startNewCampaignBtn').addEventListener('click', function () {
+            google.script.run.showSidebar();
+        });
+
+        document.getElementById('cancelScheduledBtn').addEventListener('click', function () {
+            var id = document.getElementById('currentScheduledId').value;
+            if (!id) return;
+            if (confirm('Are you sure you want to cancel this campaign?')) {
+                var btn = this;
+                var originalText = btn.textContent;
+                btn.textContent = 'Cancelling...';
+                btn.disabled = true;
+
+                google.script.run.withSuccessHandler(function (res) {
+                    if (res.success) {
+                        alert('Campaign cancelled.');
+                        google.script.run.showSidebar(); // Reload to start over
+                    } else {
+                        alert('Error: ' + res.error);
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }
+                }).cancelScheduledCampaign(id);
+            }
+        });
+
+        // Event listeners for Schedule Campaign
+        document.getElementById('scheduleCampaignBtn').addEventListener('click', showScheduleCampaignModal);
+        document.getElementById('closeScheduleCampaignModal').addEventListener('click', hideScheduleCampaignModal);
+        document.getElementById('confirmScheduleCampaignBtn').addEventListener('click', confirmScheduleCampaign);
+    </script>
+</body>
+
+</html>

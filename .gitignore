@@ -1,0 +1,22 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# clasp (Google Apps Script CLI)
+.clasp.json
+.clasprc.json
+
+# Node modules (if using clasp)
+node_modules/
+
+# Environment files
+.env
+.env.local
